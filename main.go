@@ -130,11 +130,12 @@ func main() {
 	flag.StringVar(&apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&listFlag, "list", false, "List available providers and models")
 	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
+	flag.BoolVar(&skipApproval, "yes", false, "Skip plugin approval prompts (use with caution)")
 	flag.Parse()
 
 	if u, err := user.Current(); err == nil {
 		configDir := filepath.Join(u.HomeDir, ".config", "yagi")
-		if err := loadPlugins(filepath.Join(configDir, "tools")); err != nil {
+		if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
 		}
 		if err := loadMCPConfig(configDir); err != nil {
