@@ -9,10 +9,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -22,6 +25,9 @@ var (
 	tools            []openai.Tool
 	toolFuncs        = map[string]func(string) string{}
 	quiet            bool
+
+	chatMu     sync.Mutex
+	chatCancel context.CancelFunc
 )
 
 func registerTool(name, description string, parameters json.RawMessage, fn func(string) string) {
@@ -58,8 +64,7 @@ func executeTool(name, arguments string) string {
 	return fmt.Sprintf("Unknown tool: %s", name)
 }
 
-func chat(client *openai.Client, messages []openai.ChatCompletionMessage, skill string) (string, []openai.ToolCall, error) {
-	// Add system message if identity is loaded
+func chat(ctx context.Context, client *openai.Client, messages []openai.ChatCompletionMessage, skill string) (string, []openai.ToolCall, error) {
 	systemMsg := getSystemMessage(skill)
 	if systemMsg != "" && (len(messages) == 0 || messages[0].Role != openai.ChatMessageRoleSystem) {
 		systemMsgObj := openai.ChatCompletionMessage{
@@ -70,7 +75,7 @@ func chat(client *openai.Client, messages []openai.ChatCompletionMessage, skill 
 	}
 
 	stream, err := client.CreateChatCompletionStream(
-		context.Background(),
+		ctx,
 		openai.ChatCompletionRequest{
 			Model:    selectedProvider.Model,
 			Messages: messages,
@@ -283,12 +288,54 @@ func main() {
 		fmt.Fprintln(os.Stderr)
 	}
 
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt)
+	quitCh := make(chan struct{})
+	var lastInterrupt time.Time
+
+	go func() {
+		for range sigCh {
+			now := time.Now()
+			chatMu.Lock()
+			cancel := chatCancel
+			chatMu.Unlock()
+
+			if cancel != nil {
+				cancel()
+			}
+			if now.Sub(lastInterrupt) < 500*time.Millisecond {
+				fmt.Fprintln(os.Stderr)
+				close(quitCh)
+				return
+			}
+			lastInterrupt = now
+		}
+	}()
+
 	for {
 		fmt.Print("> ")
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			break
+
+		inputCh := make(chan string, 1)
+		errCh := make(chan error, 1)
+		go func() {
+			input, err := reader.ReadString('\n')
+			if err != nil {
+				errCh <- err
+			} else {
+				inputCh <- input
+			}
+		}()
+
+		var input string
+		select {
+		case <-quitCh:
+			return
+		case err := <-errCh:
+			_ = err
+			return
+		case input = <-inputCh:
 		}
+
 		input = strings.TrimSpace(input)
 		if input == "" {
 			continue
@@ -304,13 +351,36 @@ func main() {
 
 		runChat(client, messages, skillFlag)
 		fmt.Println()
+
+		select {
+		case <-quitCh:
+			return
+		default:
+		}
 	}
 }
 
 func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, skill string) {
+	ctx, cancel := context.WithCancel(context.Background())
+	chatMu.Lock()
+	chatCancel = cancel
+	chatMu.Unlock()
+	defer func() {
+		chatMu.Lock()
+		chatCancel = nil
+		chatMu.Unlock()
+		cancel()
+	}()
+
 	for {
-		content, toolCalls, err := chat(client, messages, skill)
+		content, toolCalls, err := chat(ctx, client, messages, skill)
 		if err != nil {
+			if ctx.Err() != nil {
+				if !quiet {
+					fmt.Fprintf(os.Stderr, "\n[interrupted]\n")
+				}
+				break
+			}
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			break
 		}
