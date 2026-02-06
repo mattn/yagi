@@ -92,6 +92,8 @@ func loadPlugin(path string) error {
 	}
 
 	registerTool(name, description, json.RawMessage(parameters), runFn)
-	fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
+	if !quiet {
+		fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
+	}
 	return nil
 }
