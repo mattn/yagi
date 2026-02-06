@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -126,7 +127,8 @@ func handleLineDelimited(client *openai.Client, line string) {
 }
 
 func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, onChunk func(string)) error {
-	content, toolCalls, err := chat(client, messages, "")
+	ctx := context.Background()
+	content, toolCalls, err := chat(ctx, client, messages, "")
 	if err != nil {
 		return err
 	}
@@ -135,7 +137,6 @@ func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, 
 		onChunk(content)
 	}
 
-	// Handle tool calls
 	for len(toolCalls) > 0 {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:      openai.ChatMessageRoleAssistant,
@@ -151,7 +152,7 @@ func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, 
 			})
 		}
 
-		content, toolCalls, err = chat(client, messages, "")
+		content, toolCalls, err = chat(ctx, client, messages, "")
 		if err != nil {
 			return err
 		}
@@ -165,16 +166,16 @@ func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, 
 }
 
 func completeChat(client *openai.Client, messages []openai.ChatCompletionMessage) (string, error) {
+	ctx := context.Background()
 	var fullContent strings.Builder
 
-	content, toolCalls, err := chat(client, messages, "")
+	content, toolCalls, err := chat(ctx, client, messages, "")
 	if err != nil {
 		return "", err
 	}
 
 	fullContent.WriteString(content)
 
-	// Handle tool calls
 	for len(toolCalls) > 0 {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:      openai.ChatMessageRoleAssistant,
@@ -190,7 +191,7 @@ func completeChat(client *openai.Client, messages []openai.ChatCompletionMessage
 			})
 		}
 
-		content, toolCalls, err = chat(client, messages, "")
+		content, toolCalls, err = chat(ctx, client, messages, "")
 		if err != nil {
 			return "", err
 		}
