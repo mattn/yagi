@@ -123,7 +123,7 @@ func chat(client *openai.Client, messages []openai.ChatCompletionMessage) (strin
 
 const name = "yagi"
 
-const version = "0.0.0"
+const version = "0.0.1"
 
 var revision = "HEAD"
 
