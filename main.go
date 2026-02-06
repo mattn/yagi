@@ -39,12 +39,36 @@ func registerTool(name, description string, parameters json.RawMessage, fn func(
 
 func executeTool(name, arguments string) string {
 	if fn, ok := toolFuncs[name]; ok {
+		// Check approval before execution
+		if !skipApproval && pluginApprovals != nil {
+			if !isPluginApproved(pluginApprovals, pluginWorkDir, name) {
+				// Request approval
+				if !requestApproval(name, pluginWorkDir) {
+					return "Error: Plugin not approved by user"
+				}
+				// Save approval
+				addPluginApproval(pluginApprovals, pluginWorkDir, name)
+				if err := saveApprovalRecords(pluginConfigDir, pluginApprovals); err != nil {
+					fmt.Fprintf(os.Stderr, "Warning: failed to save approval: %v\n", err)
+				}
+			}
+		}
 		return fn(arguments)
 	}
 	return fmt.Sprintf("Unknown tool: %s", name)
 }
 
-func chat(client *openai.Client, messages []openai.ChatCompletionMessage) (string, []openai.ToolCall, error) {
+func chat(client *openai.Client, messages []openai.ChatCompletionMessage, skill string) (string, []openai.ToolCall, error) {
+	// Add system message if identity is loaded
+	systemMsg := getSystemMessage(skill)
+	if systemMsg != "" && (len(messages) == 0 || messages[0].Role != openai.ChatMessageRoleSystem) {
+		systemMsgObj := openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: systemMsg,
+		}
+		messages = append([]openai.ChatCompletionMessage{systemMsgObj}, messages...)
+	}
+
 	stream, err := client.CreateChatCompletionStream(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -79,7 +103,9 @@ func chat(client *openai.Client, messages []openai.ChatCompletionMessage) (strin
 		finishReason = choice.FinishReason
 
 		if content := choice.Delta.Content; content != "" {
-			fmt.Print(content)
+			if !quiet {
+				fmt.Print(content)
+			}
 			fullContent.WriteString(content)
 		}
 
@@ -133,13 +159,24 @@ func main() {
 		apiKeyFlag  string
 		listFlag    bool
 		showVersion bool
+		stdioMode   bool
+		skillFlag   string
 	)
-	flag.StringVar(&modelFlag, "model", "openai", "Provider name or provider/model")
+	
+	// Get default model from environment variable
+	defaultModel := os.Getenv("YAGI_MODEL")
+	if defaultModel == "" {
+		defaultModel = "openai"
+	}
+	
+	flag.StringVar(&modelFlag, "model", defaultModel, "Provider name or provider/model")
 	flag.StringVar(&apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&listFlag, "list", false, "List available providers and models")
 	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
 	flag.BoolVar(&skipApproval, "yes", false, "Skip plugin approval prompts (use with caution)")
 	flag.BoolVar(&showVersion, "v", false, "Show version")
+	flag.BoolVar(&stdioMode, "stdio", false, "Run in STDIO mode for editor integration")
+	flag.StringVar(&skillFlag, "skill", "", "Use a specific skill (e.g., 'explain', 'refactor', 'debug')")
 	flag.Parse()
 
 	if showVersion {
@@ -147,8 +184,20 @@ func main() {
 		return
 	}
 
+	// STDIO mode requires quiet and yes flags
+	if stdioMode {
+		quiet = true
+		skipApproval = true
+	}
+
 	if u, err := user.Current(); err == nil {
 		configDir := filepath.Join(u.HomeDir, ".config", "yagi")
+		if err := loadIdentity(configDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to load identity: %v\n", err)
+		}
+		if err := loadSkills(configDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to load skills: %v\n", err)
+		}
 		if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
 		}
@@ -194,6 +243,15 @@ func main() {
 	config.BaseURL = selectedProvider.APIURL
 	client := openai.NewClientWithConfig(config)
 
+	// STDIO mode
+	if stdioMode {
+		if err := runSTDIOMode(client); err != nil {
+			fmt.Fprintf(os.Stderr, "STDIO error: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	messages := []openai.ChatCompletionMessage{}
 
 	oneshot := ""
@@ -213,7 +271,7 @@ func main() {
 			Role:    openai.ChatMessageRoleUser,
 			Content: oneshot,
 		})
-		runChat(client, messages)
+		runChat(client, messages, skillFlag)
 		fmt.Println()
 		return
 	}
@@ -244,14 +302,14 @@ func main() {
 			Content: input,
 		})
 
-		runChat(client, messages)
+		runChat(client, messages, skillFlag)
 		fmt.Println()
 	}
 }
 
-func runChat(client *openai.Client, messages []openai.ChatCompletionMessage) {
+func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, skill string) {
 	for {
-		content, toolCalls, err := chat(client, messages)
+		content, toolCalls, err := chat(client, messages, skill)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			break
