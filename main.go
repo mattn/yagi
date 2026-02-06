@@ -20,6 +20,7 @@ var (
 	selectedProvider *Provider
 	tools            []openai.Tool
 	toolFuncs        = map[string]func(string) string{}
+	quiet            bool
 )
 
 func registerTool(name, description string, parameters json.RawMessage, fn func(string) string) {
@@ -128,6 +129,7 @@ func main() {
 	flag.StringVar(&modelFlag, "model", "openai", "Provider name or provider/model")
 	flag.StringVar(&apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&listFlag, "list", false, "List available providers and models")
+	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
 	flag.Parse()
 
 	if u, err := user.Current(); err == nil {
@@ -203,8 +205,10 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, selectedProvider.Model)
-	fmt.Fprintln(os.Stderr)
+	if !quiet {
+		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, selectedProvider.Model)
+		fmt.Fprintln(os.Stderr)
+	}
 
 	for {
 		fmt.Print("> ")
@@ -245,7 +249,9 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage) {
 			})
 
 			for _, tc := range toolCalls {
+				if !quiet {
 				fmt.Fprintf(os.Stderr, "[tool: %s(%s)]\n", tc.Function.Name, tc.Function.Arguments)
+			}
 				output := executeTool(tc.Function.Name, tc.Function.Arguments)
 				messages = append(messages, openai.ChatCompletionMessage{
 					Role:       openai.ChatMessageRoleTool,

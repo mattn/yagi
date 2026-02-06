@@ -97,7 +97,9 @@ func loadMCPConfig(configDir string) error {
 					return contentToString(res.Content)
 				},
 			)
-			fmt.Fprintf(os.Stderr, "Loaded MCP tool: %s (from %s)\n", toolName, name)
+			if !quiet {
+				fmt.Fprintf(os.Stderr, "Loaded MCP tool: %s (from %s)\n", toolName, name)
+			}
 		}
 	}
 	return nil
