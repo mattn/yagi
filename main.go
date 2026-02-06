@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
@@ -120,18 +121,31 @@ func chat(client *openai.Client, messages []openai.ChatCompletionMessage) (strin
 	return fullContent.String(), toolCalls, nil
 }
 
+const name = "yagi"
+
+const version = "0.0.0"
+
+var revision = "HEAD"
+
 func main() {
 	var (
-		modelFlag  string
-		apiKeyFlag string
-		listFlag   bool
+		modelFlag   string
+		apiKeyFlag  string
+		listFlag    bool
+		showVersion bool
 	)
 	flag.StringVar(&modelFlag, "model", "openai", "Provider name or provider/model")
 	flag.StringVar(&apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&listFlag, "list", false, "List available providers and models")
 	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
 	flag.BoolVar(&skipApproval, "yes", false, "Skip plugin approval prompts (use with caution)")
+	flag.BoolVar(&showVersion, "v", false, "Show version")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
+		return
+	}
 
 	if u, err := user.Current(); err == nil {
 		configDir := filepath.Join(u.HomeDir, ".config", "yagi")
@@ -251,8 +265,8 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage) {
 
 			for _, tc := range toolCalls {
 				if !quiet {
-				fmt.Fprintf(os.Stderr, "[tool: %s(%s)]\n", tc.Function.Name, tc.Function.Arguments)
-			}
+					fmt.Fprintf(os.Stderr, "[tool: %s(%s)]\n", tc.Function.Name, tc.Function.Arguments)
+				}
 				output := executeTool(tc.Function.Name, tc.Function.Arguments)
 				messages = append(messages, openai.ChatCompletionMessage{
 					Role:       openai.ChatMessageRoleTool,
