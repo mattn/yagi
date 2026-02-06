@@ -13,28 +13,55 @@ go install github.com/user/yagi@latest
 ## Usage
 
 ```
-yagi [options]
+yagi [options] [prompt]
 ```
 
 | Flag | Description | Default |
 |------|-------------|---------|
 | `-model` | Provider name or `provider/model` | `glm` |
+| `-key` | API key (overrides environment variable) | |
+| `-quiet` | Suppress informational messages | |
 | `-list` | List available providers and models | |
 
-### Examples
+When run without arguments, yagi starts in interactive mode. Pass a prompt as arguments or via pipe for one-shot mode.
+
+### Interactive Mode
 
 ```bash
-# Use the default provider (glm) with its default model
+# Start interactive chat with the default provider
 yagi
 
-# Use Gemini with its default model
+# Start interactive chat with Gemini
 yagi -model gemini
+```
 
-# Use Gemini with a specific model
-yagi -model gemini/gemini-2.5-pro
+### One-shot Mode
 
-# List all available providers
+```bash
+# Pass a prompt as arguments
+yagi "こんにちは"
+
+# Pipe input as a prompt
+echo "Write FizzBuzz in Go" | yagi
+
+# Specify a model for one-shot
+yagi -model gemini "Explain this error: segmentation fault"
+
+# Pass file contents
+cat main.go | yagi "Review this code"
+
+# Pass command output
+git diff | yagi "Summarize this diff"
+```
+
+### Other
+
+```bash
+# List all available providers and models
 yagi -list
+
+# Use a specific model
+yagi -model gemini/gemini-2.5-pro "Hello"
 ```
 
 ## Providers
@@ -109,7 +136,8 @@ Tools can import `"hostapi"` to access host-provided functions that require depe
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NostrFetchNotes` | `func(relay string, limit int) string` | Fetch text notes from a Nostr relay |
+| `FetchURL` | `func(url string) string` | Fetch URL content as text (HTML is converted to plain text with links) |
+| `WebSocketSend` | `func(url, message string, maxMessages, timeoutSec int) string` | Send a WebSocket message and collect responses as a JSON array |
 
 ```go
 package tool
@@ -119,26 +147,27 @@ import (
 	"hostapi"
 )
 
-var Name = "nostr_timeline"
-var Description = "Fetch the latest posts from a Nostr relay"
+var Name = "fetch_url"
+var Description = "Fetch the content of a URL and return it as text"
 var Parameters = `{
 	"type": "object",
 	"properties": {
-		"limit": {
-			"type": "integer",
-			"description": "Number of posts to fetch (default: 10, max: 50)"
+		"url": {
+			"type": "string",
+			"description": "The URL to fetch"
 		}
-	}
+	},
+	"required": ["url"]
 }`
 
 func Run(args string) string {
 	var params struct {
-		Limit int `json:"limit"`
+		URL string `json:"url"`
 	}
-	if err := json.Unmarshal([]byte(args), &params); err != nil || params.Limit <= 0 {
-		params.Limit = 10
+	if err := json.Unmarshal([]byte(args), &params); err != nil {
+		return "Error: " + err.Error()
 	}
-	return hostapi.NostrFetchNotes("wss://yabu.me", params.Limit)
+	return hostapi.FetchURL(params.URL)
 }
 ```
 
