@@ -13,7 +13,8 @@ import (
 
 var hostSymbols = interp.Exports{
 	"hostapi/hostapi": map[string]reflect.Value{
-		"NostrFetchNotes": reflect.ValueOf(nostrFetchNotes),
+		"FetchURL":      reflect.ValueOf(fetchURL),
+		"WebSocketSend": reflect.ValueOf(webSocketSend),
 	},
 }
 
