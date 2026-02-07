@@ -9,6 +9,9 @@ jobs:
   push_to_registry:
     name: Docker
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
     - name: Check out the repo
       uses: actions/checkout@v3
@@ -45,4 +48,4 @@ jobs:
           ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
-        cache-to: type=gha,mode=max # mode=maxを有効にすると、中間ステージまで含めてキャッシュできる
+        cache-to: type=gha,mode=max
