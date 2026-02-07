@@ -24,6 +24,7 @@ var (
 	tools            []openai.Tool
 	toolFuncs        = map[string]func(string) (string, error){}
 	quiet            bool
+	verbose          bool
 
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
@@ -183,6 +184,7 @@ func parseFlags() parsedFlags {
 	flag.StringVar(&f.apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&f.listFlag, "list", false, "List available providers and models")
 	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
+	flag.BoolVar(&verbose, "verbose", false, "Show verbose output including plugin loading")
 	flag.BoolVar(&skipApproval, "yes", false, "Skip plugin approval prompts (use with caution)")
 	flag.BoolVar(&f.showVersion, "v", false, "Show version")
 	flag.BoolVar(&f.stdioMode, "stdio", false, "Run in STDIO mode for editor integration")
@@ -210,6 +212,9 @@ func loadConfigurations() {
 	}
 	if err := loadSkills(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load skills: %v\n", err)
+	}
+	if err := loadMemory(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load memory: %v\n", err)
 	}
 	if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)

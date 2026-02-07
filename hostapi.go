@@ -91,6 +91,33 @@ func extractText(n *html.Node, sb *strings.Builder) {
 	}
 }
 
+func saveMemoryEntry(key, value string) string {
+	if err := setMemory(key, value); err != nil {
+		return fmt.Sprintf("Error: %v", err)
+	}
+	return "Saved"
+}
+
+func getMemoryEntry(key string) string {
+	return getMemory(key)
+}
+
+func deleteMemoryEntry(key string) string {
+	if err := deleteMemory(key); err != nil {
+		return fmt.Sprintf("Error: %v", err)
+	}
+	return "Deleted"
+}
+
+func listMemoryEntries() string {
+	memory := getAllMemory()
+	if len(memory) == 0 {
+		return "{}"
+	}
+	b, _ := json.Marshal(memory)
+	return string(b)
+}
+
 func webSocketSend(url string, message string, maxMessages int, timeoutSec int) string {
 	if maxMessages <= 0 {
 		maxMessages = 10
