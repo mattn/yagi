@@ -18,5 +18,9 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.x
+    - name: Setup yagi-profiles
+      run: git clone https://github.com/yagi-agent/yagi-profiles.git ~/.config/yagi
     - name: Build
       run: go build -v .
+    - name: Test
+      run: go test -v ./...
