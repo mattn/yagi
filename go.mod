@@ -1,4 +1,4 @@
-module github.com/mattn/yagi
+module github.com/yagi-agent/yagi
 
 go 1.25.6
 
