@@ -177,15 +177,21 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 		return fmt.Errorf("Run not found: %w", err)
 	}
 
-	runFn, ok := runVal.Interface().(func(string) string)
+	runFn, ok := runVal.Interface().(func(string) (string, error))
 	if !ok {
 		if runVal.Kind() == reflect.Func {
-			runFn = func(args string) string {
+			runFn = func(args string) (string, error) {
 				results := runVal.Call([]reflect.Value{reflect.ValueOf(args)})
-				if len(results) > 0 {
-					return results[0].Interface().(string)
+				if len(results) >= 2 {
+					if err, ok := results[1].Interface().(error); ok && err != nil {
+						return "", err
+					}
+					return results[0].Interface().(string), nil
 				}
-				return ""
+				if len(results) > 0 {
+					return results[0].Interface().(string), nil
+				}
+				return "", nil
 			}
 		} else {
 			return fmt.Errorf("Run is not a function")
