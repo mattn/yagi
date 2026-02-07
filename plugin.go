@@ -66,10 +66,11 @@ func computeHash(content []byte) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func requestApproval(pluginName, workDir string) bool {
+func requestApproval(pluginName, workDir, arguments string) bool {
 	fmt.Fprintf(os.Stderr, "\n[WARNING] Plugin requires approval\n")
 	fmt.Fprintf(os.Stderr, "  Plugin: %s\n", pluginName)
 	fmt.Fprintf(os.Stderr, "  Working directory: %s\n", workDir)
+	fmt.Fprintf(os.Stderr, "  Arguments: %s\n", arguments)
 	fmt.Fprintf(os.Stderr, "This plugin uses unrestricted API and may perform dangerous operations.\n")
 	fmt.Fprintf(os.Stderr, "Allow this plugin for this directory? [y/N]: ")
 

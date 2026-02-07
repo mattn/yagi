@@ -46,7 +46,7 @@ func executeTool(name, arguments string) string {
 	if fn, ok := toolFuncs[name]; ok {
 		if !skipApproval && pluginApprovals != nil {
 			if !isPluginApproved(pluginApprovals, pluginWorkDir, name) {
-				if !requestApproval(name, pluginWorkDir) {
+				if !requestApproval(name, pluginWorkDir, arguments) {
 					return "Error: Plugin not approved by user"
 				}
 				addPluginApproval(pluginApprovals, pluginWorkDir, name)
