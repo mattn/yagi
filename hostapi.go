@@ -12,34 +12,34 @@ import (
 	"golang.org/x/net/html"
 )
 
-func fetchURL(url string) string {
+func fetchURL(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Sprintf("Error: %v", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	ct := resp.Header.Get("Content-Type")
 	if !strings.Contains(ct, "text/") && !strings.Contains(ct, "application/json") && !strings.Contains(ct, "application/xml") {
-		return fmt.Sprintf("Error: unsupported content type: %s", ct)
+		return "", fmt.Errorf("unsupported content type: %s", ct)
 	}
 
 	if !strings.Contains(ct, "text/html") {
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return fmt.Sprintf("Error: %v", err)
+			return "", err
 		}
-		return string(b)
+		return string(b), nil
 	}
 
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
-		return fmt.Sprintf("Error parsing HTML: %v", err)
+		return "", fmt.Errorf("failed to parse HTML: %w", err)
 	}
 
 	var sb strings.Builder
 	extractText(doc, &sb)
-	return sb.String()
+	return sb.String(), nil
 }
 
 func extractText(n *html.Node, sb *strings.Builder) {
@@ -91,34 +91,37 @@ func extractText(n *html.Node, sb *strings.Builder) {
 	}
 }
 
-func saveMemoryEntry(key, value string) string {
+func saveMemoryEntry(key, value string) (string, error) {
 	if err := setMemory(key, value); err != nil {
-		return fmt.Sprintf("Error: %v", err)
+		return "", err
 	}
-	return "Saved"
+	return "Saved", nil
 }
 
-func getMemoryEntry(key string) string {
-	return getMemory(key)
+func getMemoryEntry(key string) (string, error) {
+	return getMemory(key), nil
 }
 
-func deleteMemoryEntry(key string) string {
+func deleteMemoryEntry(key string) (string, error) {
 	if err := deleteMemory(key); err != nil {
-		return fmt.Sprintf("Error: %v", err)
+		return "", err
 	}
-	return "Deleted"
+	return "Deleted", nil
 }
 
-func listMemoryEntries() string {
+func listMemoryEntries() (string, error) {
 	memory := getAllMemory()
 	if len(memory) == 0 {
-		return "{}"
+		return "{}", nil
 	}
-	b, _ := json.Marshal(memory)
-	return string(b)
+	b, err := json.Marshal(memory)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
-func webSocketSend(url string, message string, maxMessages int, timeoutSec int) string {
+func webSocketSend(url string, message string, maxMessages int, timeoutSec int) (string, error) {
 	if maxMessages <= 0 {
 		maxMessages = 10
 	}
@@ -128,12 +131,12 @@ func webSocketSend(url string, message string, maxMessages int, timeoutSec int) 
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
-		return fmt.Sprintf("Error connecting: %v", err)
+		return "", fmt.Errorf("failed to connect: %w", err)
 	}
 	defer conn.Close()
 
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
-		return fmt.Sprintf("Error sending: %v", err)
+		return "", fmt.Errorf("failed to send message: %w", err)
 	}
 
 	deadline := time.Now().Add(time.Duration(timeoutSec) * time.Second)
@@ -151,6 +154,9 @@ func webSocketSend(url string, message string, maxMessages int, timeoutSec int) 
 	conn.WriteMessage(websocket.CloseMessage,
 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 
-	b, _ := json.Marshal(results)
-	return string(b)
+	b, err := json.Marshal(results)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
