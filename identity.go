@@ -59,6 +59,11 @@ func getSystemMessage(skill string) string {
 		parts = append(parts, systemPrompt)
 	}
 
+	memoryMd := getMemoryAsMarkdown()
+	if memoryMd != "" {
+		parts = append(parts, memoryMd)
+	}
+
 	if skill != "" {
 		if skillContent, ok := skillPrompts[skill]; ok {
 			parts = append(parts, "\n---\n", skillContent)

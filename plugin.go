@@ -20,6 +20,10 @@ var (
 		"hostapi/hostapi": map[string]reflect.Value{
 			"FetchURL":      reflect.ValueOf(fetchURL),
 			"WebSocketSend": reflect.ValueOf(webSocketSend),
+			"SaveMemory":    reflect.ValueOf(saveMemoryEntry),
+			"GetMemory":     reflect.ValueOf(getMemoryEntry),
+			"DeleteMemory":  reflect.ValueOf(deleteMemoryEntry),
+			"ListMemory":    reflect.ValueOf(listMemoryEntries),
 		},
 	}
 	skipApproval    bool
@@ -186,7 +190,7 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 
 		runFn := convertRunFunc(runField)
 		registerTool(name, description, json.RawMessage(parameters), runFn)
-		if !quiet {
+		if verbose {
 			fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
 		}
 		return nil
@@ -218,7 +222,7 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 
 	runFn := convertRunFunc(runVal)
 	registerTool(name, description, json.RawMessage(parameters), runFn)
-	if !quiet {
+	if verbose {
 		fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
 	}
 	return nil
