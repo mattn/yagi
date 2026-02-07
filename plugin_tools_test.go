@@ -22,8 +22,12 @@ func loadTestPlugin(t *testing.T, pluginPath string) {
 }
 
 func pluginPath(name string) string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "yagi", "tools", name)
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		home, _ := os.UserHomeDir()
+		configDir = filepath.Join(home, ".config")
+	}
+	return filepath.Join(configDir, "yagi", "tools", name)
 }
 
 func TestPluginReadFile(t *testing.T) {
