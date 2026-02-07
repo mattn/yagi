@@ -158,69 +158,38 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 		return fmt.Errorf("eval: %w", err)
 	}
 
-	// Try to get tool.Tool first (new struct-based format)
 	toolVal, err := i.Eval("tool.Tool")
-	if err == nil {
-		// New format: struct with Name, Description, Parameters, Run fields
-		v := toolVal.Interface()
-		rv := reflect.ValueOf(v)
-
-		nameField := rv.FieldByName("Name")
-		if !nameField.IsValid() || nameField.Kind() != reflect.String {
-			return fmt.Errorf("Tool.Name field not found or not a string")
-		}
-		name := nameField.String()
-
-		descField := rv.FieldByName("Description")
-		if !descField.IsValid() || descField.Kind() != reflect.String {
-			return fmt.Errorf("Tool.Description field not found or not a string")
-		}
-		description := descField.String()
-
-		paramsField := rv.FieldByName("Parameters")
-		if !paramsField.IsValid() || paramsField.Kind() != reflect.String {
-			return fmt.Errorf("Tool.Parameters field not found or not a string")
-		}
-		parameters := paramsField.String()
-
-		runField := rv.FieldByName("Run")
-		if !runField.IsValid() || runField.Kind() != reflect.Func {
-			return fmt.Errorf("Tool.Run field not found or not a function")
-		}
-
-		runFn := convertRunFunc(runField)
-		registerTool(name, description, json.RawMessage(parameters), runFn)
-		if verbose {
-			fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
-		}
-		return nil
-	}
-
-	// Fall back to old format (individual variables) for backward compatibility
-	nameVal, err := i.Eval("tool.Name")
 	if err != nil {
-		return fmt.Errorf("Name not found: %w", err)
-	}
-	name := nameVal.Interface().(string)
-
-	descVal, err := i.Eval("tool.Description")
-	if err != nil {
-		return fmt.Errorf("Description not found: %w", err)
-	}
-	description := descVal.Interface().(string)
-
-	paramsVal, err := i.Eval("tool.Parameters")
-	if err != nil {
-		return fmt.Errorf("Parameters not found: %w", err)
-	}
-	parameters := paramsVal.Interface().(string)
-
-	runVal, err := i.Eval("tool.Run")
-	if err != nil {
-		return fmt.Errorf("Run not found: %w", err)
+		return fmt.Errorf("tool.Tool not found: %w", err)
 	}
 
-	runFn := convertRunFunc(runVal)
+	v := toolVal.Interface()
+	rv := reflect.ValueOf(v)
+
+	nameField := rv.FieldByName("Name")
+	if !nameField.IsValid() || nameField.Kind() != reflect.String {
+		return fmt.Errorf("Tool.Name field not found or not a string")
+	}
+	name := nameField.String()
+
+	descField := rv.FieldByName("Description")
+	if !descField.IsValid() || descField.Kind() != reflect.String {
+		return fmt.Errorf("Tool.Description field not found or not a string")
+	}
+	description := descField.String()
+
+	paramsField := rv.FieldByName("Parameters")
+	if !paramsField.IsValid() || paramsField.Kind() != reflect.String {
+		return fmt.Errorf("Tool.Parameters field not found or not a string")
+	}
+	parameters := paramsField.String()
+
+	runField := rv.FieldByName("Run")
+	if !runField.IsValid() || runField.Kind() != reflect.Func {
+		return fmt.Errorf("Tool.Run field not found or not a function")
+	}
+
+	runFn := convertRunFunc(runField)
 	registerTool(name, description, json.RawMessage(parameters), runFn)
 	if verbose {
 		fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
