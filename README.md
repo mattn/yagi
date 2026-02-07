@@ -7,7 +7,7 @@ Tools are written as plain Go source files and loaded at runtime — no recompil
 ## Install
 
 ```
-go install github.com/user/yagi@latest
+go install github.com/yagi-agent/yagi@latest
 ```
 
 ## Usage
