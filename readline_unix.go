@@ -11,7 +11,7 @@ import (
 
 func enableRawMode() (func(), error) {
 	var orig syscall.Termios
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), syscall.TCGETS, uintptr(unsafe.Pointer(&orig)), 0, 0, 0); err != 0 {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), ioctlGetTermios, uintptr(unsafe.Pointer(&orig)), 0, 0, 0); err != 0 {
 		return nil, err
 	}
 
@@ -21,12 +21,12 @@ func enableRawMode() (func(), error) {
 	raw.Cc[syscall.VMIN] = 1
 	raw.Cc[syscall.VTIME] = 0
 
-	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), syscall.TCSETS, uintptr(unsafe.Pointer(&raw)), 0, 0, 0); err != 0 {
+	if _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), ioctlSetTermios, uintptr(unsafe.Pointer(&raw)), 0, 0, 0); err != 0 {
 		return nil, err
 	}
 
 	return func() {
-		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), syscall.TCSETS, uintptr(unsafe.Pointer(&orig)), 0, 0, 0)
+		syscall.Syscall6(syscall.SYS_IOCTL, uintptr(syscall.Stdin), ioctlSetTermios, uintptr(unsafe.Pointer(&orig)), 0, 0, 0)
 	}, nil
 }
 
