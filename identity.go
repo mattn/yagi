@@ -38,36 +38,36 @@ func loadSkills(configDir string) error {
 		if entry.IsDir() || filepath.Ext(entry.Name()) != ".md" {
 			continue
 		}
-		
+
 		skillName := strings.TrimSuffix(entry.Name(), ".md")
 		path := filepath.Join(skillsDir, entry.Name())
 		data, err := os.ReadFile(path)
 		if err != nil {
 			continue
 		}
-		
+
 		skillPrompts[skillName] = string(data)
 	}
-	
+
 	return nil
 }
 
 func getSystemMessage(skill string) string {
 	var parts []string
-	
+
 	if systemPrompt != "" {
 		parts = append(parts, systemPrompt)
 	}
-	
+
 	if skill != "" {
 		if skillContent, ok := skillPrompts[skill]; ok {
 			parts = append(parts, "\n---\n", skillContent)
 		}
 	}
-	
+
 	if len(parts) == 0 {
 		return ""
 	}
-	
+
 	return strings.Join(parts, "")
 }
