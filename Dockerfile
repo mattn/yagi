@@ -17,4 +17,5 @@ FROM scratch
 COPY --link --from=build-dev /go/bin/yagi /go/bin/yagi
 COPY --from=build-dev /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=profiles /yagi-profiles /root/.config/yagi
+COPY --from=build-dev /etc/passwd /etc/passwd
 ENTRYPOINT ["/go/bin/yagi"]
