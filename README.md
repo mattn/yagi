@@ -120,10 +120,12 @@ The AI automatically uses these tools when appropriate. Memory is persistent acr
 
 Tools are Go source files placed in `~/.config/yagi/tools/`. Each file is interpreted by Yaegi at startup — no compilation required.
 
-A tool file must define four package-level symbols:
+### Recommended Format: Tool Struct
 
-| Symbol | Type | Description |
-|--------|------|-------------|
+Define a `Tool` struct with the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
 | `Name` | `string` | Tool name (used in function calling) |
 | `Description` | `string` | Description shown to the LLM |
 | `Parameters` | `string` | JSON Schema for the tool's parameters |
@@ -138,31 +140,37 @@ package tool
 
 import "encoding/json"
 
-var Name = "reverse"
-var Description = "Reverse the input string"
-var Parameters = `{
-	"type": "object",
-	"properties": {
-		"text": {
-			"type": "string",
-			"description": "The text to reverse"
+var Tool = struct {
+	Name        string
+	Description string
+	Parameters  string
+	Run         func(string) (string, error)
+}{
+	Name:        "reverse",
+	Description: "Reverse the input string",
+	Parameters: `{
+		"type": "object",
+		"properties": {
+			"text": {
+				"type": "string",
+				"description": "The text to reverse"
+			}
+		},
+		"required": ["text"]
+	}`,
+	Run: func(args string) (string, error) {
+		var params struct {
+			Text string `json:"text"`
 		}
+		if err := json.Unmarshal([]byte(args), &params); err != nil {
+			return "", err
+		}
+		runes := []rune(params.Text)
+		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+			runes[i], runes[j] = runes[j], runes[i]
+		}
+		return string(runes), nil
 	},
-	"required": ["text"]
-}`
-
-func Run(args string) (string, error) {
-	var params struct {
-		Text string `json:"text"`
-	}
-	if err := json.Unmarshal([]byte(args), &params); err != nil {
-		return "", err
-	}
-	runes := []rune(params.Text)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes), nil
 }
 ```
 
@@ -189,27 +197,33 @@ import (
 	"hostapi"
 )
 
-var Name = "fetch_url"
-var Description = "Fetch the content of a URL and return it as text"
-var Parameters = `{
-	"type": "object",
-	"properties": {
-		"url": {
-			"type": "string",
-			"description": "The URL to fetch"
+var Tool = struct {
+	Name        string
+	Description string
+	Parameters  string
+	Run         func(string) (string, error)
+}{
+	Name:        "fetch_url",
+	Description: "Fetch the content of a URL and return it as text",
+	Parameters: `{
+		"type": "object",
+		"properties": {
+			"url": {
+				"type": "string",
+				"description": "The URL to fetch"
+			}
+		},
+		"required": ["url"]
+	}`,
+	Run: func(args string) (string, error) {
+		var params struct {
+			URL string `json:"url"`
 		}
+		if err := json.Unmarshal([]byte(args), &params); err != nil {
+			return "", err
+		}
+		return hostapi.FetchURL(params.URL), nil
 	},
-	"required": ["url"]
-}`
-
-func Run(args string) string {
-	var params struct {
-		URL string `json:"url"`
-	}
-	if err := json.Unmarshal([]byte(args), &params); err != nil {
-		return "Error: " + err.Error()
-	}
-	return hostapi.FetchURL(params.URL)
 }
 ```
 
@@ -223,26 +237,32 @@ import (
 	"hostapi"
 )
 
-var Name = "remember"
-var Description = "Remember information for future conversations"
-var Parameters = `{
-	"type": "object",
-	"properties": {
-		"key": {"type": "string", "description": "Identifier (e.g., 'user_name')"},
-		"value": {"type": "string", "description": "Information to remember"}
+var Tool = struct {
+	Name        string
+	Description string
+	Parameters  string
+	Run         func(string) (string, error)
+}{
+	Name:        "remember",
+	Description: "Remember information for future conversations",
+	Parameters: `{
+		"type": "object",
+		"properties": {
+			"key": {"type": "string", "description": "Identifier (e.g., 'user_name')"},
+			"value": {"type": "string", "description": "Information to remember"}
+		},
+		"required": ["key", "value"]
+	}`,
+	Run: func(args string) (string, error) {
+		var params struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		}
+		if err := json.Unmarshal([]byte(args), &params); err != nil {
+			return "", err
+		}
+		return hostapi.SaveMemory(params.Key, params.Value), nil
 	},
-	"required": ["key", "value"]
-}`
-
-func Run(args string) (string, error) {
-	var params struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-	}
-	if err := json.Unmarshal([]byte(args), &params); err != nil {
-		return "", err
-	}
-	return hostapi.SaveMemory(params.Key, params.Value), nil
 }
 ```
 
