@@ -44,8 +44,8 @@ func loadMCPConfig(configDir string) error {
 	}
 
 	client := mcp.NewClient(&mcp.Implementation{
-		Name:    "yagi",
-		Version: "1.0.0",
+		Name:    name,
+		Version: version,
 	}, nil)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
