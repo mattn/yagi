@@ -193,23 +193,29 @@ func parseFlags() parsedFlags {
 }
 
 func loadConfigurations() {
-	if u, err := user.Current(); err == nil {
-		configDir := filepath.Join(u.HomeDir, ".config", "yagi")
-		if err := loadConfig(configDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to load config: %v\n", err)
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		u, err := user.Current()
+		if err != nil {
+			return
 		}
-		if err := loadIdentity(configDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to load identity: %v\n", err)
-		}
-		if err := loadSkills(configDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to load skills: %v\n", err)
-		}
-		if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
-		}
-		if err := loadMCPConfig(configDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
-		}
+		configDir = filepath.Join(u.HomeDir, ".config")
+	}
+	configDir = filepath.Join(configDir, "yagi")
+	if err := loadConfig(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load config: %v\n", err)
+	}
+	if err := loadIdentity(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load identity: %v\n", err)
+	}
+	if err := loadSkills(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load skills: %v\n", err)
+	}
+	if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
+	}
+	if err := loadMCPConfig(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
 	}
 }
 
