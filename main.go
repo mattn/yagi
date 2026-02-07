@@ -196,6 +196,9 @@ func main() {
 
 	if u, err := user.Current(); err == nil {
 		configDir := filepath.Join(u.HomeDir, ".config", "yagi")
+		if err := loadConfig(configDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to load config: %v\n", err)
+		}
 		if err := loadIdentity(configDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load identity: %v\n", err)
 		}
@@ -322,7 +325,7 @@ func main() {
 		inputCh := make(chan string, 1)
 		errCh := make(chan error, 1)
 		go func() {
-			input, err := readline("> ", history)
+			input, err := readline(appConfig.Prompt+" ", history)
 			if err != nil {
 				errCh <- err
 			} else {
