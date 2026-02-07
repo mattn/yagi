@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -281,11 +280,18 @@ func main() {
 		return
 	}
 
-	reader := bufio.NewReader(os.Stdin)
-
 	if !quiet {
 		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, selectedProvider.Model)
 		fmt.Fprintln(os.Stderr)
+	}
+
+	var history []string
+
+	restoreTerminal, err := enableRawMode()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to enable raw mode: %v\n", err)
+	} else {
+		defer restoreTerminal()
 	}
 
 	sigCh := make(chan os.Signal, 1)
@@ -313,12 +319,10 @@ func main() {
 	}()
 
 	for {
-		fmt.Print("> ")
-
 		inputCh := make(chan string, 1)
 		errCh := make(chan error, 1)
 		go func() {
-			input, err := reader.ReadString('\n')
+			input, err := readline("> ", history)
 			if err != nil {
 				errCh <- err
 			} else {
@@ -343,6 +347,8 @@ func main() {
 		if input == "exit" {
 			break
 		}
+
+		history = append(history, input)
 
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
