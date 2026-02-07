@@ -4,6 +4,15 @@ A CLI chat client for multiple LLM providers with a plugin system powered by [Ya
 
 Tools are written as plain Go source files and loaded at runtime — no recompilation needed.
 
+## Features
+
+- **Multiple LLM Providers**: Support for OpenAI, Gemini, Groq, GLM, and more
+- **Dynamic Plugin System**: Write tools in Go without recompilation
+- **Persistent Memory**: AI can learn and remember information across conversations
+- **Skills System**: Load specialized prompts for different tasks
+- **Identity/Persona**: Customize AI behavior with IDENTITY.md
+- **Interactive & One-shot Modes**: Use interactively or pipe commands
+
 ## Install
 
 ```
@@ -80,6 +89,33 @@ export GEMINI_API_KEY="your-api-key"
 yagi -model gemini
 ```
 
+## Memory System
+
+Yagi can learn and remember information across conversations using the built-in memory system. Learned information is stored in `~/.config/yagi/memory.json` and automatically included in the AI's context.
+
+### Built-in Memory Tools
+
+Three memory management tools are included by default:
+
+- **remember**: Save information for future recall
+- **recall**: Retrieve previously saved information
+- **list_memories**: View all stored memories
+
+### Example Usage
+
+```bash
+$ yagi "My name is Taro"
+# AI uses the 'remember' tool to save: user_name = Taro
+
+$ yagi "What's my name?"
+# AI retrieves from memory: "Your name is Taro"
+
+$ yagi "I prefer Go over Python"
+# AI remembers: favorite_language = Go
+```
+
+The AI automatically uses these tools when appropriate. Memory is persistent across sessions and tied to the current config directory.
+
 ## Writing Tools
 
 Tools are Go source files placed in `~/.config/yagi/tools/`. Each file is interpreted by Yaegi at startup — no compilation required.
@@ -138,6 +174,12 @@ Tools can import `"hostapi"` to access host-provided functions that require depe
 |----------|-----------|-------------|
 | `FetchURL` | `func(url string) string` | Fetch URL content as text (HTML is converted to plain text with links) |
 | `WebSocketSend` | `func(url, message string, maxMessages, timeoutSec int) string` | Send a WebSocket message and collect responses as a JSON array |
+| `SaveMemory` | `func(key, value string) string` | Save a key-value pair to memory.json (returns "Saved" or error message) |
+| `GetMemory` | `func(key string) string` | Retrieve a value from memory by key (returns empty string if not found) |
+| `DeleteMemory` | `func(key string) string` | Delete a key from memory (returns "Deleted" or error message) |
+| `ListMemory` | `func() string` | List all memory entries as JSON |
+
+#### Example: URL Fetcher
 
 ```go
 package tool
@@ -168,6 +210,39 @@ func Run(args string) string {
 		return "Error: " + err.Error()
 	}
 	return hostapi.FetchURL(params.URL)
+}
+```
+
+#### Example: Memory Tool
+
+```go
+package tool
+
+import (
+	"encoding/json"
+	"hostapi"
+)
+
+var Name = "remember"
+var Description = "Remember information for future conversations"
+var Parameters = `{
+	"type": "object",
+	"properties": {
+		"key": {"type": "string", "description": "Identifier (e.g., 'user_name')"},
+		"value": {"type": "string", "description": "Information to remember"}
+	},
+	"required": ["key", "value"]
+}`
+
+func Run(args string) (string, error) {
+	var params struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal([]byte(args), &params); err != nil {
+		return "", err
+	}
+	return hostapi.SaveMemory(params.Key, params.Value), nil
 }
 ```
 
