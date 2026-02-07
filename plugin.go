@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -72,10 +71,8 @@ func requestApproval(pluginName, workDir, arguments string) bool {
 	fmt.Fprintf(os.Stderr, "  Working directory: %s\n", workDir)
 	fmt.Fprintf(os.Stderr, "  Arguments: %s\n", arguments)
 	fmt.Fprintf(os.Stderr, "This plugin uses unrestricted API and may perform dangerous operations.\n")
-	fmt.Fprintf(os.Stderr, "Allow this plugin for this directory? [y/N]: ")
 
-	reader := bufio.NewReader(os.Stdin)
-	response, err := reader.ReadString('\n')
+	response, err := readFromTTY("Allow this plugin for this directory? [y/N]: ")
 	if err != nil {
 		return false
 	}
