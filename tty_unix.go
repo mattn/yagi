@@ -5,6 +5,8 @@ package main
 import (
 	"bufio"
 	"os"
+	"syscall"
+	"unsafe"
 )
 
 func readFromTTY(prompt string) (string, error) {
@@ -13,6 +15,15 @@ func readFromTTY(prompt string) (string, error) {
 		return "", err
 	}
 	defer tty.Close()
+
+	fd := tty.Fd()
+	var orig syscall.Termios
+	syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlGetTermios, uintptr(unsafe.Pointer(&orig)), 0, 0, 0)
+
+	cooked := orig
+	cooked.Lflag |= syscall.ECHO | syscall.ICANON
+	syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlSetTermios, uintptr(unsafe.Pointer(&cooked)), 0, 0, 0)
+	defer syscall.Syscall6(syscall.SYS_IOCTL, fd, ioctlSetTermios, uintptr(unsafe.Pointer(&orig)), 0, 0, 0)
 
 	_, err = tty.WriteString(prompt)
 	if err != nil {
