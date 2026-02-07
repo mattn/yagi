@@ -9,7 +9,7 @@ import (
 
 func resetGlobals() {
 	tools = nil
-	toolFuncs = map[string]func(string) string{}
+	toolFuncs = map[string]func(string) (string, error){}
 	skipApproval = true
 	pluginApprovals = nil
 }
@@ -18,8 +18,8 @@ func TestRegisterTool(t *testing.T) {
 	resetGlobals()
 
 	params := json.RawMessage(`{"type":"object","properties":{"name":{"type":"string"}}}`)
-	registerTool("test_tool", "A test tool", params, func(args string) string {
-		return args
+	registerTool("test_tool", "A test tool", params, func(args string) (string, error) {
+		return args, nil
 	})
 
 	if len(tools) != 1 {
@@ -42,8 +42,8 @@ func TestRegisterTool(t *testing.T) {
 func TestExecuteTool_Known(t *testing.T) {
 	resetGlobals()
 
-	registerTool("echo", "echoes input", json.RawMessage(`{}`), func(args string) string {
-		return "result:" + args
+	registerTool("echo", "echoes input", json.RawMessage(`{}`), func(args string) (string, error) {
+		return "result:" + args, nil
 	})
 
 	got := executeTool("echo", "hello")
@@ -67,8 +67,8 @@ func TestRegisterTool_Multiple(t *testing.T) {
 
 	for i, name := range []string{"tool_a", "tool_b", "tool_c"} {
 		n := name
-		registerTool(n, "desc "+n, json.RawMessage(`{}`), func(args string) string {
-			return n
+		registerTool(n, "desc "+n, json.RawMessage(`{}`), func(args string) (string, error) {
+			return n, nil
 		})
 		if len(tools) != i+1 {
 			t.Fatalf("after registering %s: expected %d tools, got %d", n, i+1, len(tools))

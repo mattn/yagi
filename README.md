@@ -91,7 +91,7 @@ A tool file must define four package-level symbols:
 | `Name` | `string` | Tool name (used in function calling) |
 | `Description` | `string` | Description shown to the LLM |
 | `Parameters` | `string` | JSON Schema for the tool's parameters |
-| `Run` | `func(string) string` | Function that receives a JSON arguments string and returns the result |
+| `Run` | `func(string) (string, error)` | Function that receives a JSON arguments string and returns the result and error |
 
 The package name must be `tool`.
 
@@ -115,18 +115,18 @@ var Parameters = `{
 	"required": ["text"]
 }`
 
-func Run(args string) string {
+func Run(args string) (string, error) {
 	var params struct {
 		Text string `json:"text"`
 	}
 	if err := json.Unmarshal([]byte(args), &params); err != nil {
-		return "Error: " + err.Error()
+		return "", err
 	}
 	runes := []rune(params.Text)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
-	return string(runes)
+	return string(runes), nil
 }
 ```
 

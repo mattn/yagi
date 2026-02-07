@@ -22,14 +22,14 @@ import (
 var (
 	selectedProvider *Provider
 	tools            []openai.Tool
-	toolFuncs        = map[string]func(string) string{}
+	toolFuncs        = map[string]func(string) (string, error){}
 	quiet            bool
 
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
 )
 
-func registerTool(name, description string, parameters json.RawMessage, fn func(string) string) {
+func registerTool(name, description string, parameters json.RawMessage, fn func(string) (string, error)) {
 	var params openai.FunctionDefinition
 	params.Name = name
 	params.Description = description
@@ -55,7 +55,11 @@ func executeTool(name, arguments string) string {
 				}
 			}
 		}
-		return fn(arguments)
+		result, err := fn(arguments)
+		if err != nil {
+			return fmt.Sprintf("Error: %v", err)
+		}
+		return result
 	}
 	return fmt.Sprintf("Unknown tool: %s", name)
 }

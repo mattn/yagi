@@ -77,7 +77,7 @@ func loadMCPConfig(configDir string) error {
 				toolName,
 				tool.Description,
 				marshalSchema(tool.InputSchema),
-				func(arguments string) string {
+				func(arguments string) (string, error) {
 					var args map[string]any
 					json.Unmarshal([]byte(arguments), &args)
 
@@ -89,12 +89,12 @@ func loadMCPConfig(configDir string) error {
 						Arguments: args,
 					})
 					if err != nil {
-						return fmt.Sprintf("Error: %v", err)
+						return "", fmt.Errorf("%v", err)
 					}
 					if res.IsError {
-						return fmt.Sprintf("Tool error: %s", contentToString(res.Content))
+						return "", fmt.Errorf("tool error: %s", contentToString(res.Content))
 					}
-					return contentToString(res.Content)
+					return contentToString(res.Content), nil
 				},
 			)
 			if !quiet {

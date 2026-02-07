@@ -128,8 +128,8 @@ func TestPluginRunCommand_Failure(t *testing.T) {
 
 	args, _ := json.Marshal(map[string]string{"command": "false"})
 	got := executeTool("run_command", string(args))
-	if !strings.Contains(got, "Exit error") {
-		t.Errorf("run_command false: expected exit error, got %q", got)
+	if !strings.Contains(got, "Error:") {
+		t.Errorf("run_command false: expected error, got %q", got)
 	}
 }
 
