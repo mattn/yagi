@@ -153,7 +153,7 @@ func chat(ctx context.Context, client *openai.Client, messages []openai.ChatComp
 
 const name = "yagi"
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 var revision = "HEAD"
 
@@ -166,13 +166,13 @@ func main() {
 		stdioMode   bool
 		skillFlag   string
 	)
-	
+
 	// Get default model from environment variable
 	defaultModel := os.Getenv("YAGI_MODEL")
 	if defaultModel == "" {
 		defaultModel = "openai"
 	}
-	
+
 	flag.StringVar(&modelFlag, "model", defaultModel, "Provider name or provider/model")
 	flag.StringVar(&apiKeyFlag, "key", "", "API key (overrides environment variable)")
 	flag.BoolVar(&listFlag, "list", false, "List available providers and models")
