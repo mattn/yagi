@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -343,6 +344,98 @@ func TestPluginDeleteFile_EmptyDir(t *testing.T) {
 	got := executeTool("delete_file", string(args))
 	if !strings.Contains(got, "Deleted") {
 		t.Errorf("delete_file empty dir: got %q", got)
+	}
+}
+
+func TestPluginGlob_Recursive(t *testing.T) {
+	loadTestPlugin(t, pluginPath("glob.go"))
+
+	dir := t.TempDir()
+	os.MkdirAll(filepath.Join(dir, "src", "pkg"), 0755)
+	os.WriteFile(filepath.Join(dir, "main.go"), []byte("package main"), 0644)
+	os.WriteFile(filepath.Join(dir, "src", "app.go"), []byte("package src"), 0644)
+	os.WriteFile(filepath.Join(dir, "src", "pkg", "util.go"), []byte("package pkg"), 0644)
+	os.WriteFile(filepath.Join(dir, "README.md"), []byte("# README"), 0644)
+
+	args, _ := json.Marshal(map[string]any{"pattern": "**/*.go", "directory": dir})
+	got := executeTool("glob", string(args))
+	if !strings.Contains(got, "main.go") {
+		t.Errorf("glob **.go: missing main.go in %q", got)
+	}
+	if !strings.Contains(got, filepath.Join("src", "app.go")) {
+		t.Errorf("glob **.go: missing src/app.go in %q", got)
+	}
+	if !strings.Contains(got, filepath.Join("src", "pkg", "util.go")) {
+		t.Errorf("glob **.go: missing src/pkg/util.go in %q", got)
+	}
+	if strings.Contains(got, "README.md") {
+		t.Errorf("glob **.go: should not contain README.md in %q", got)
+	}
+}
+
+func TestPluginGlob_SubdirPattern(t *testing.T) {
+	loadTestPlugin(t, pluginPath("glob.go"))
+
+	dir := t.TempDir()
+	os.MkdirAll(filepath.Join(dir, "src"), 0755)
+	os.MkdirAll(filepath.Join(dir, "docs"), 0755)
+	os.WriteFile(filepath.Join(dir, "src", "main.go"), []byte(""), 0644)
+	os.WriteFile(filepath.Join(dir, "docs", "guide.md"), []byte(""), 0644)
+
+	args, _ := json.Marshal(map[string]any{"pattern": "src/**/*.go", "directory": dir})
+	got := executeTool("glob", string(args))
+	if !strings.Contains(got, "main.go") {
+		t.Errorf("glob src/**/*.go: missing main.go in %q", got)
+	}
+	if strings.Contains(got, "guide.md") {
+		t.Errorf("glob src/**/*.go: should not contain guide.md in %q", got)
+	}
+}
+
+func TestPluginGlob_NoMatch(t *testing.T) {
+	loadTestPlugin(t, pluginPath("glob.go"))
+
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "file.txt"), []byte(""), 0644)
+
+	args, _ := json.Marshal(map[string]any{"pattern": "**/*.go", "directory": dir})
+	got := executeTool("glob", string(args))
+	if !strings.Contains(got, "No files found") {
+		t.Errorf("glob no match: expected 'No files found', got %q", got)
+	}
+}
+
+func TestPluginGlob_Limit(t *testing.T) {
+	loadTestPlugin(t, pluginPath("glob.go"))
+
+	dir := t.TempDir()
+	for i := 0; i < 10; i++ {
+		os.WriteFile(filepath.Join(dir, fmt.Sprintf("file%d.txt", i)), []byte(""), 0644)
+	}
+
+	args, _ := json.Marshal(map[string]any{"pattern": "**/*.txt", "directory": dir, "limit": 3})
+	got := executeTool("glob", string(args))
+	lines := strings.Split(strings.TrimSpace(got), "\n")
+	if len(lines) != 3 {
+		t.Errorf("glob limit: expected 3 results, got %d: %q", len(lines), got)
+	}
+}
+
+func TestPluginGlob_SkipsDotDirs(t *testing.T) {
+	loadTestPlugin(t, pluginPath("glob.go"))
+
+	dir := t.TempDir()
+	os.MkdirAll(filepath.Join(dir, ".git"), 0755)
+	os.WriteFile(filepath.Join(dir, ".git", "config"), []byte(""), 0644)
+	os.WriteFile(filepath.Join(dir, "main.go"), []byte(""), 0644)
+
+	args, _ := json.Marshal(map[string]any{"pattern": "**/*", "directory": dir})
+	got := executeTool("glob", string(args))
+	if strings.Contains(got, ".git") {
+		t.Errorf("glob: should skip .git directory, got %q", got)
+	}
+	if !strings.Contains(got, "main.go") {
+		t.Errorf("glob: should contain main.go, got %q", got)
 	}
 }
 
