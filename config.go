@@ -11,7 +11,7 @@ type Config struct {
 }
 
 var appConfig = Config{
-	Prompt: "🐐 ",
+	Prompt: "> ",
 }
 
 func loadConfig(configDir string) error {

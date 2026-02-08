@@ -378,6 +378,11 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 			break
 		}
 
+		if strings.HasPrefix(input, "/") {
+			handleSlashCommand(input, &client, configDir, &messages)
+			continue
+		}
+
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
 			Content: input,
@@ -397,6 +402,74 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 			return
 		default:
 		}
+	}
+}
+
+func handleSlashCommand(input string, client **openai.Client, configDir string, messages *[]openai.ChatCompletionMessage) {
+	var prevProvider *Provider
+	var prevModel string
+	if selectedProvider != nil {
+		prevProvider = &Provider{
+			Name:   selectedProvider.Name,
+			APIURL: selectedProvider.APIURL,
+			EnvKey: selectedProvider.EnvKey,
+		}
+		prevModel = model
+	}
+
+	parts := strings.Fields(input)
+	cmd := parts[0]
+	args := ""
+	if len(parts) > 1 {
+		args = strings.Join(parts[1:], " ")
+	}
+
+	switch cmd {
+	case "/help":
+		fmt.Println("Available commands:")
+		fmt.Println("  /model <name>  - Change model (e.g., /model google/gemini-2.5-pro)")
+		fmt.Println("  /clear         - Clear conversation history")
+		fmt.Println("  /exit          - Exit yagi")
+		fmt.Println("  /help          - Show this help")
+	case "/model":
+		if args == "" {
+			if selectedProvider != nil {
+				fmt.Printf("Current model: %s/%s\n", selectedProvider.Name, model)
+			} else {
+				fmt.Printf("Current model: %s\n", model)
+			}
+			return
+		}
+		providerName, modelName, ok := strings.Cut(args, "/")
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Invalid model format. Use: provider/model\n")
+			return
+		}
+		newProvider := findProvider(providerName)
+		if newProvider == nil {
+			fmt.Fprintf(os.Stderr, "Unknown provider: %s\n", providerName)
+			return
+		}
+		selectedProvider = newProvider
+		model = modelName
+		apiKey := os.Getenv(selectedProvider.EnvKey)
+		if apiKey == "" {
+			fmt.Fprintf(os.Stderr, "Error: %s is not set. Keeping previous model.\n", selectedProvider.EnvKey)
+			selectedProvider = prevProvider
+			model = prevModel
+			return
+		}
+		config := openai.DefaultConfig(apiKey)
+		config.BaseURL = selectedProvider.APIURL
+		*client = openai.NewClientWithConfig(config)
+		fmt.Printf("Model changed to: %s/%s\n", selectedProvider.Name, model)
+	case "/clear":
+		*messages = nil
+		workDir, _ := os.Getwd()
+		if configDir != "" && workDir != "" {
+			clearSession(configDir, workDir)
+		}
+		fmt.Println("Conversation cleared.")
 	}
 }
 
