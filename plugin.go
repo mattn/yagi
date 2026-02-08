@@ -190,7 +190,7 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 	}
 
 	runFn := convertRunFunc(runField)
-	registerTool(name, description, json.RawMessage(parameters), runFn)
+	registerTool(name, description, json.RawMessage(parameters), runFn, false)
 	if verbose {
 		fmt.Fprintf(os.Stderr, "Loaded plugin: %s\n", name)
 	}

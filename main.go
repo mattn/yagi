@@ -25,11 +25,16 @@ import (
 //go:embed models.txt
 var modelsTxt string
 
+type toolMetadata struct {
+	safe bool
+}
+
 var (
 	selectedProvider *Provider
 	model            string
 	tools            []openai.Tool
 	toolFuncs        = map[string]func(string) (string, error){}
+	toolMeta         = map[string]toolMetadata{}
 	quiet            bool
 	verbose          bool
 
@@ -38,7 +43,7 @@ var (
 	stderr     = colorable.NewColorableStderr()
 )
 
-func registerTool(name, description string, parameters json.RawMessage, fn func(string) (string, error)) {
+func registerTool(name, description string, parameters json.RawMessage, fn func(string) (string, error), safe bool) {
 	var params openai.FunctionDefinition
 	params.Name = name
 	params.Description = description
@@ -49,11 +54,13 @@ func registerTool(name, description string, parameters json.RawMessage, fn func(
 		Function: &params,
 	})
 	toolFuncs[name] = fn
+	toolMeta[name] = toolMetadata{safe: safe}
 }
 
 func executeTool(name, arguments string) string {
 	if fn, ok := toolFuncs[name]; ok {
-		if !skipApproval && pluginApprovals != nil {
+		meta, isMeta := toolMeta[name]
+		if !skipApproval && isMeta && !meta.safe && pluginApprovals != nil {
 			if !isPluginApproved(pluginApprovals, pluginWorkDir, name) {
 				if !requestApproval(name, pluginWorkDir, arguments) {
 					return "Error: Plugin not approved by user"
@@ -182,6 +189,107 @@ const name = "yagi"
 const version = "0.0.24"
 
 var revision = "HEAD"
+
+func setupBuiltInTools() {
+	registerTool("get_yagi_info", "Get information about yagi", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"info_type": {
+				"type": "string",
+				"enum": ["version", "model"],
+				"description": "What information to get: 'version' or 'model'"
+			}
+		},
+		"required": ["info_type"]
+	}`), func(args string) (string, error) {
+		var req struct {
+			InfoType string `json:"info_type"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		switch req.InfoType {
+		case "version":
+			return fmt.Sprintf("yagi version %s (revision: %s/%s)", version, revision, runtime.Version()), nil
+		case "model":
+			if selectedProvider != nil {
+				return fmt.Sprintf("%s/%s", selectedProvider.Name, model), nil
+			}
+			return model, nil
+		default:
+			return "", fmt.Errorf("unknown info_type: %s", req.InfoType)
+		}
+	}, true)
+
+	registerTool("saveMemoryEntry", "Save information to memory. Use this when user wants to remember something.", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"key": {
+				"type": "string",
+				"description": "A short identifier for what to remember (e.g., 'user_name', 'favorite_language', 'agent_language')"
+			},
+			"value": {
+				"type": "string",
+				"description": "The information to remember"
+			}
+		},
+		"required": ["key", "value"]
+	}`), func(args string) (string, error) {
+		var req struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		return saveMemoryEntry(req.Key, req.Value)
+	}, true)
+
+	registerTool("getMemoryEntry", "Retrieve information from memory.", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"key": {
+				"type": "string",
+				"description": "The identifier of the information to recall"
+			}
+		},
+		"required": ["key"]
+	}`), func(args string) (string, error) {
+		var req struct {
+			Key string `json:"key"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		return getMemoryEntry(req.Key)
+	}, true)
+
+	registerTool("deleteMemoryEntry", "Delete information from memory.", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"key": {
+				"type": "string",
+				"description": "The identifier of the information to forget"
+			}
+		},
+		"required": ["key"]
+	}`), func(args string) (string, error) {
+		var req struct {
+			Key string `json:"key"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		return deleteMemoryEntry(req.Key)
+	}, true)
+
+	registerTool("listMemoryEntries", "List all saved information.", json.RawMessage(`{
+		"type": "object",
+		"properties": {}
+	}`), func(args string) (string, error) {
+		return listMemoryEntries()
+	}, true)
+}
 
 type parsedFlags struct {
 	modelFlag   string
@@ -476,6 +584,14 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 			clearSession(configDir, workDir)
 		}
 		fmt.Println("Conversation cleared.")
+	case "/memory":
+		result, err := listMemoryEntries()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			return
+		}
+		fmt.Println("Saved memories:")
+		fmt.Println(result)
 	}
 }
 
@@ -494,6 +610,8 @@ func main() {
 
 	configDir := loadConfigurations()
 	defer closeMCPConnections()
+
+	setupBuiltInTools()
 
 	if f.listFlag {
 		listModels(flag.Args())
