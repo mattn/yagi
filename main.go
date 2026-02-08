@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -17,10 +19,15 @@ import (
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/mattn/go-colorable"
 )
+
+//go:embed models.txt
+var modelsTxt string
 
 var (
 	selectedProvider *Provider
+	model            string
 	tools            []openai.Tool
 	toolFuncs        = map[string]func(string) (string, error){}
 	quiet            bool
@@ -28,6 +35,7 @@ var (
 
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
+	stderr     = colorable.NewColorableStderr()
 )
 
 func registerTool(name, description string, parameters json.RawMessage, fn func(string) (string, error)) {
@@ -89,14 +97,14 @@ func processStreamResponse(stream *openai.ChatCompletionStream) (string, []opena
 
 		if reasoning := choice.Delta.ReasoningContent; reasoning != "" && !quiet {
 			if !inThinking {
-				fmt.Fprint(os.Stderr, "\x1b[2K\r[thinking] ")
+				fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking]\x1b[0m ")
 				inThinking = true
 			}
 		}
 
 		if content := choice.Delta.Content; content != "" {
 			if inThinking {
-				fmt.Fprint(os.Stderr, "\x1b[2K\r")
+				fmt.Fprint(stderr, "\x1b[2K\r")
 				inThinking = false
 			}
 			if !quiet {
@@ -156,7 +164,7 @@ func chat(ctx context.Context, client *openai.Client, messages []openai.ChatComp
 	stream, err := client.CreateChatCompletionStream(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model:    selectedProvider.Model,
+			Model:    model,
 			Messages: messages,
 			Tools:    tools,
 		},
@@ -190,12 +198,12 @@ func parseFlags() parsedFlags {
 
 	defaultModel := os.Getenv("YAGI_MODEL")
 	if defaultModel == "" {
-		defaultModel = "openai"
+		defaultModel = "openai/gpt-4.1-nano"
 	}
 
-	flag.StringVar(&f.modelFlag, "model", defaultModel, "Provider name or provider/model")
+	flag.StringVar(&f.modelFlag, "model", defaultModel, "Provider/model (e.g. google/gemini-2.5-pro)")
 	flag.StringVar(&f.apiKeyFlag, "key", "", "API key (overrides environment variable)")
-	flag.BoolVar(&f.listFlag, "list", false, "List available providers and models")
+	flag.BoolVar(&f.listFlag, "list", false, "List available providers")
 	flag.BoolVar(&quiet, "quiet", false, "Suppress informational messages")
 	flag.BoolVar(&verbose, "verbose", false, "Show verbose output including plugin loading")
 	flag.BoolVar(&skipApproval, "yes", false, "Skip plugin approval prompts (use with caution)")
@@ -240,20 +248,18 @@ func loadConfigurations() string {
 }
 
 func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
-	providerName, modelName, _ := strings.Cut(modelFlag, "/")
+	providerName, modelName, ok := strings.Cut(modelFlag, "/")
+	if !ok {
+		fmt.Fprintf(os.Stderr, "Invalid model format: %s\nUse provider/model format (e.g. google/gemini-2.5-pro)\nRun with -list to see available providers.\n", modelFlag)
+		os.Exit(1)
+	}
 	selectedProvider = findProvider(providerName)
 	if selectedProvider == nil {
-		fmt.Fprintf(os.Stderr, "Unknown provider: %s\nAvailable providers:", providerName)
-		for _, p := range providers {
-			fmt.Fprintf(os.Stderr, " %s", p.Name)
-		}
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "Unknown provider: %s\nRun with -list to see available providers.\n", providerName)
 		os.Exit(1)
 	}
 
-	if modelName != "" {
-		selectedProvider.Model = modelName
-	}
+	model = modelName
 
 	apiKey := apiKeyFlag
 	if apiKey == "" {
@@ -286,7 +292,7 @@ func readOneshotInput() string {
 
 func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resume bool) {
 	if !quiet {
-		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, selectedProvider.Model)
+		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, model)
 		fmt.Fprintln(os.Stderr)
 	}
 
@@ -409,10 +415,7 @@ func main() {
 	defer closeMCPConnections()
 
 	if f.listFlag {
-		fmt.Println("Available providers:")
-		for _, p := range providers {
-			fmt.Printf("  %-12s model=%-30s env=%s\n", p.Name, p.Model, p.EnvKey)
-		}
+		listModels(flag.Args())
 		return
 	}
 
@@ -475,9 +478,12 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 
 			for _, tc := range toolCalls {
 				if !quiet {
-					fmt.Fprintf(os.Stderr, "[tool: %s(%s)]\n", tc.Function.Name, tc.Function.Arguments)
+					fmt.Fprintf(stderr, "\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
 				}
 				output := executeTool(tc.Function.Name, tc.Function.Arguments)
+				if !quiet && (strings.HasPrefix(output, "Error: ") || strings.HasPrefix(output, "Unknown tool: ")) {
+					fmt.Fprintf(stderr, "\x1b[31m[tool error: %s]\x1b[0m\n", output)
+				}
 				*messages = append(*messages, openai.ChatCompletionMessage{
 					Role:       openai.ChatMessageRoleTool,
 					Content:    output,
@@ -492,5 +498,20 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 			Content: content,
 		})
 		break
+	}
+}
+
+func listModels(args []string) {
+	filter := ""
+	if len(args) > 0 {
+		filter = args[0]
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(modelsTxt))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if filter == "" || strings.Contains(line, filter) {
+			fmt.Println(line)
+		}
 	}
 }

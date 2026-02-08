@@ -4,6 +4,7 @@ go 1.25.6
 
 require (
 	github.com/gorilla/websocket v1.5.3
+	github.com/mattn/go-colorable v0.1.14
 	github.com/modelcontextprotocol/go-sdk v1.2.0
 	github.com/sashabaranov/go-openai v1.41.2
 	github.com/traefik/yaegi v0.16.1
@@ -12,6 +13,8 @@ require (
 
 require (
 	github.com/google/jsonschema-go v0.3.0 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
 )
