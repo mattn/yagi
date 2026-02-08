@@ -28,24 +28,29 @@ yagi [options] [prompt]
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-model` | Provider name or `provider/model` | `glm` |
+| `-model` | `provider/model` format (e.g. `google/gemini-2.5-pro`) | `openai/gpt-4.1-nano` |
 | `-key` | API key (overrides environment variable) | |
 | `-quiet` | Suppress informational messages | |
+| `-verbose` | Show verbose output including plugin loading | |
+| `-yes` | Skip plugin approval prompts (use with caution) | |
 | `-list` | List available providers and models | |
 | `-resume` | Resume previous session for the current directory | |
 | `-skill` | Use a specific skill (e.g., `explain`, `refactor`, `debug`) | |
 | `-stdio` | Run in STDIO mode for editor integration | |
+| `-v` | Show version | |
+
+The default model can be overridden with the `YAGI_MODEL` environment variable.
 
 When run without arguments, yagi starts in interactive mode. Pass a prompt as arguments or via pipe for one-shot mode.
 
 ### Interactive Mode
 
 ```bash
-# Start interactive chat with the default provider
+# Start interactive chat with the default model
 yagi
 
 # Start interactive chat with Gemini
-yagi -model gemini
+yagi -model google/gemini-2.5-flash
 
 # Resume the previous session for the current directory
 yagi -resume
@@ -61,7 +66,7 @@ yagi "こんにちは"
 echo "Write FizzBuzz in Go" | yagi
 
 # Specify a model for one-shot
-yagi -model gemini "Explain this error: segmentation fault"
+yagi -model google/gemini-2.5-flash "Explain this error: segmentation fault"
 
 # Pass file contents
 cat main.go | yagi "Review this code"
@@ -76,25 +81,43 @@ git diff | yagi "Summarize this diff"
 # List all available providers and models
 yagi -list
 
+# Filter models by keyword
+yagi -list gemini
+
 # Use a specific model
-yagi -model gemini/gemini-2.5-pro "Hello"
+yagi -model google/gemini-2.5-pro "Hello"
 ```
 
 ## Providers
 
-| Name | Default Model | Env Variable |
-|------|--------------|--------------|
-| `glm` | `glm-4.5-flash` | `GLM_API_KEY` |
-| `gemini` | `gemini-2.5-flash` | `GEMINI_API_KEY` |
-| `groq` | `llama-3.3-70b-versatile` | `GROQ_API_KEY` |
-| `sambanova` | `Meta-Llama-3.3-70B-Instruct` | `SAMBANOVA_API_KEY` |
+Models are specified in `provider/model` format. The following providers are supported:
+
+| Provider | Env Variable |
+|----------|--------------|
+| `openai` | `OPENAI_API_KEY` |
+| `google` | `GEMINI_API_KEY` |
+| `anthropic` | `ANTHROPIC_API_KEY` |
+| `deepseek` | `DEEPSEEK_API_KEY` |
+| `mistral` | `MISTRAL_API_KEY` |
+| `groq` | `GROQ_API_KEY` |
+| `xai` | `XAI_API_KEY` |
+| `perplexity` | `PERPLEXITY_API_KEY` |
+| `together` | `TOGETHER_API_KEY` |
+| `fireworks` | `FIREWORKS_API_KEY` |
+| `cerebras` | `CEREBRAS_API_KEY` |
+| `cohere` | `COHERE_API_KEY` |
+| `openrouter` | `OPENROUTER_API_KEY` |
+| `sambanova` | `SAMBANOVA_API_KEY` |
+| `zai` | `Z_AI_API_KEY` |
 
 Set the corresponding environment variable before running:
 
 ```bash
 export GEMINI_API_KEY="your-api-key"
-yagi -model gemini
+yagi -model google/gemini-2.5-flash
 ```
+
+Use `yagi -list` to see all available models, or `yagi -list <keyword>` to filter.
 
 ## Session Resumption
 
