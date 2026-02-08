@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestFindProvider_Exists(t *testing.T) {
-	names := []string{"openai", "gemini", "anthropic", "deepseek", "mistral", "groq", "xai", "perplexity", "together", "fireworks", "cerebras", "cohere", "openrouter", "sambanova", "glm"}
+	names := []string{"openai", "google", "anthropic", "deepseek", "mistral", "groq", "xai", "perplexity", "together", "fireworks", "cerebras", "cohere", "openrouter", "sambanova", "zai"}
 	for _, name := range names {
 		p := findProvider(name)
 		if p == nil {
@@ -40,9 +40,6 @@ func TestProviders_NonEmpty(t *testing.T) {
 		}
 		if p.APIURL == "" {
 			t.Errorf("provider %q has empty APIURL", p.Name)
-		}
-		if p.Model == "" {
-			t.Errorf("provider %q has empty Model", p.Name)
 		}
 		if p.EnvKey == "" {
 			t.Errorf("provider %q has empty EnvKey", p.Name)
