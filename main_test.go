@@ -10,6 +10,7 @@ import (
 func resetGlobals() {
 	tools = nil
 	toolFuncs = map[string]func(string) (string, error){}
+	toolMeta = map[string]toolMetadata{}
 	skipApproval = true
 	pluginApprovals = nil
 }
@@ -20,7 +21,7 @@ func TestRegisterTool(t *testing.T) {
 	params := json.RawMessage(`{"type":"object","properties":{"name":{"type":"string"}}}`)
 	registerTool("test_tool", "A test tool", params, func(args string) (string, error) {
 		return args, nil
-	})
+	}, false)
 
 	if len(tools) != 1 {
 		t.Fatalf("expected 1 tool, got %d", len(tools))
@@ -44,7 +45,7 @@ func TestExecuteTool_Known(t *testing.T) {
 
 	registerTool("echo", "echoes input", json.RawMessage(`{}`), func(args string) (string, error) {
 		return "result:" + args, nil
-	})
+	}, false)
 
 	got := executeTool("echo", "hello")
 	if got != "result:hello" {
@@ -69,7 +70,7 @@ func TestRegisterTool_Multiple(t *testing.T) {
 		n := name
 		registerTool(n, "desc "+n, json.RawMessage(`{}`), func(args string) (string, error) {
 			return n, nil
-		})
+		}, false)
 		if len(tools) != i+1 {
 			t.Fatalf("after registering %s: expected %d tools, got %d", n, i+1, len(tools))
 		}
