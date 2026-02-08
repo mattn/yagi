@@ -159,7 +159,7 @@ func chat(ctx context.Context, client *openai.Client, messages []openai.ChatComp
 
 const name = "yagi"
 
-const version = "0.0.18"
+const version = "0.0.19"
 
 var revision = "HEAD"
 
