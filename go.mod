@@ -3,6 +3,7 @@ module github.com/yagi-agent/yagi
 go 1.25.6
 
 require (
+	github.com/chzyer/readline v1.5.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/mattn/go-colorable v0.1.14
 	github.com/modelcontextprotocol/go-sdk v1.2.0
