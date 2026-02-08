@@ -18,8 +18,8 @@ import (
 	"sync"
 	"time"
 
-	openai "github.com/sashabaranov/go-openai"
 	"github.com/mattn/go-colorable"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 //go:embed models.txt
@@ -292,13 +292,12 @@ func readOneshotInput() string {
 
 func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resume bool) {
 	if !quiet {
-		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, model)
+		fmt.Fprintf(os.Stderr, "Chat [%s/%s] (type 'exit' to quit)\n", selectedProvider.Name, model)
 		fmt.Fprintln(os.Stderr)
 	}
 
 	workDir, _ := os.Getwd()
 
-	var history []string
 	var messages []openai.ChatCompletionMessage
 
 	if resume && configDir != "" && workDir != "" {
@@ -313,12 +312,10 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		}
 	}
 
-	restoreTerminal, err := enableRawMode()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: failed to enable raw mode: %v\n", err)
-	} else {
-		defer restoreTerminal()
+	if err := initReadline(appConfig.Prompt+" ", configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to init readline: %v\n", err)
 	}
+	defer closeReadline()
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt)
@@ -348,7 +345,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		inputCh := make(chan string, 1)
 		errCh := make(chan error, 1)
 		go func() {
-			input, err := readline(appConfig.Prompt+" ", history)
+			input, err := readlineInput(appConfig.Prompt + " ")
 			if err != nil {
 				errCh <- err
 			} else {
@@ -361,7 +358,14 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		case <-quitCh:
 			return
 		case err := <-errCh:
-			_ = err
+			if isInterrupt(err) {
+				now := time.Now()
+				if now.Sub(lastInterrupt) < 500*time.Millisecond {
+					return
+				}
+				lastInterrupt = now
+				continue
+			}
 			return
 		case input = <-inputCh:
 		}
@@ -373,8 +377,6 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		if input == "exit" {
 			break
 		}
-
-		history = append(history, input)
 
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
@@ -478,7 +480,7 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 
 			for _, tc := range toolCalls {
 				if !quiet {
-					fmt.Fprintf(stderr, "\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
+					fmt.Fprintf(stderr, "\n\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
 				}
 				output := executeTool(tc.Function.Name, tc.Function.Arguments)
 				if !quiet && (strings.HasPrefix(output, "Error: ") || strings.HasPrefix(output, "Unknown tool: ")) {
