@@ -427,10 +427,16 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 	switch cmd {
 	case "/help":
 		fmt.Println("Available commands:")
-		fmt.Println("  /model <name>  - Change model (e.g., /model google/gemini-2.5-pro)")
-		fmt.Println("  /clear         - Clear conversation history")
-		fmt.Println("  /exit          - Exit yagi")
-		fmt.Println("  /help          - Show this help")
+		fmt.Println("  /model [name]   - Show/change model (e.g., /model openai/gpt-4o)")
+		fmt.Println("  /clear          - Clear conversation history")
+		fmt.Println("  /exit           - Exit yagi")
+		fmt.Println("  /help           - Show this help")
+		fmt.Println()
+		fmt.Println("Tips:")
+		fmt.Println("  - Use Tab for auto-completion")
+		fmt.Println("  - Start with / to see slash commands")
+		fmt.Println("  - Use -model flag to set model on startup")
+		fmt.Println("  - Use -list to see available models")
 	case "/model":
 		if args == "" {
 			if selectedProvider != nil {
