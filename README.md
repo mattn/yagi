@@ -11,6 +11,7 @@ Tools are written as plain Go source files and loaded at runtime — no recompil
 - **Persistent Memory**: AI can learn and remember information across conversations
 - **Skills System**: Load specialized prompts for different tasks
 - **Identity/Persona**: Customize AI behavior with IDENTITY.md
+- **Session Resumption**: Resume previous conversations per directory with `-resume`
 - **Interactive & One-shot Modes**: Use interactively or pipe commands
 
 ## Install
@@ -31,6 +32,9 @@ yagi [options] [prompt]
 | `-key` | API key (overrides environment variable) | |
 | `-quiet` | Suppress informational messages | |
 | `-list` | List available providers and models | |
+| `-resume` | Resume previous session for the current directory | |
+| `-skill` | Use a specific skill (e.g., `explain`, `refactor`, `debug`) | |
+| `-stdio` | Run in STDIO mode for editor integration | |
 
 When run without arguments, yagi starts in interactive mode. Pass a prompt as arguments or via pipe for one-shot mode.
 
@@ -42,6 +46,9 @@ yagi
 
 # Start interactive chat with Gemini
 yagi -model gemini
+
+# Resume the previous session for the current directory
+yagi -resume
 ```
 
 ### One-shot Mode
@@ -88,6 +95,23 @@ Set the corresponding environment variable before running:
 export GEMINI_API_KEY="your-api-key"
 yagi -model gemini
 ```
+
+## Session Resumption
+
+Yagi automatically saves conversation history per working directory. Use `-resume` to continue where you left off.
+
+```bash
+# Work on a project
+cd ~/myproject
+yagi "Add error handling to main.go"
+
+# Later, resume the conversation
+cd ~/myproject
+yagi -resume
+# [resumed 4 messages from previous session]
+```
+
+Sessions are stored in `~/.config/yagi/sessions/` and are keyed by directory path. The last 100 messages (excluding system prompts) are retained. Tool call history is preserved so the AI retains full context.
 
 ## Memory System
 
