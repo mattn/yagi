@@ -170,6 +170,7 @@ type parsedFlags struct {
 	showVersion bool
 	stdioMode   bool
 	skillFlag   string
+	resumeFlag  bool
 }
 
 func parseFlags() parsedFlags {
@@ -189,17 +190,18 @@ func parseFlags() parsedFlags {
 	flag.BoolVar(&f.showVersion, "v", false, "Show version")
 	flag.BoolVar(&f.stdioMode, "stdio", false, "Run in STDIO mode for editor integration")
 	flag.StringVar(&f.skillFlag, "skill", "", "Use a specific skill (e.g., 'explain', 'refactor', 'debug')")
+	flag.BoolVar(&f.resumeFlag, "resume", false, "Resume previous session for the current directory")
 	flag.Parse()
 
 	return f
 }
 
-func loadConfigurations() {
+func loadConfigurations() string {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		u, err := user.Current()
 		if err != nil {
-			return
+			return ""
 		}
 		configDir = filepath.Join(u.HomeDir, ".config")
 	}
@@ -222,6 +224,7 @@ func loadConfigurations() {
 	if err := loadMCPConfig(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
 	}
+	return configDir
 }
 
 func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
@@ -269,14 +272,28 @@ func readOneshotInput() string {
 	return ""
 }
 
-func runInteractiveLoop(client *openai.Client, skillFlag string) {
+func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resume bool) {
 	if !quiet {
 		fmt.Fprintf(os.Stderr, "%s Chat [%s] (type 'exit' to quit)\n", selectedProvider.Name, selectedProvider.Model)
 		fmt.Fprintln(os.Stderr)
 	}
 
+	workDir, _ := os.Getwd()
+
 	var history []string
-	messages := []openai.ChatCompletionMessage{}
+	var messages []openai.ChatCompletionMessage
+
+	if resume && configDir != "" && workDir != "" {
+		restored, err := loadSession(configDir, workDir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to load session: %v\n", err)
+		} else if len(restored) > 0 {
+			messages = restored
+			if !quiet {
+				fmt.Fprintf(os.Stderr, "[resumed %d messages from previous session]\n\n", len(restored))
+			}
+		}
+	}
 
 	restoreTerminal, err := enableRawMode()
 	if err != nil {
@@ -346,8 +363,14 @@ func runInteractiveLoop(client *openai.Client, skillFlag string) {
 			Content: input,
 		})
 
-		runChat(client, messages, skillFlag)
+		runChat(client, &messages, skillFlag)
 		fmt.Println()
+
+		if configDir != "" && workDir != "" {
+			if err := saveSession(configDir, workDir, messages); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to save session: %v\n", err)
+			}
+		}
 
 		select {
 		case <-quitCh:
@@ -370,7 +393,7 @@ func main() {
 		skipApproval = true
 	}
 
-	loadConfigurations()
+	configDir := loadConfigurations()
 	defer closeMCPConnections()
 
 	if f.listFlag {
@@ -399,15 +422,15 @@ func main() {
 				Content: oneshot,
 			},
 		}
-		runChat(client, messages, f.skillFlag)
+		runChat(client, &messages, f.skillFlag)
 		fmt.Println()
 		return
 	}
 
-	runInteractiveLoop(client, f.skillFlag)
+	runInteractiveLoop(client, f.skillFlag, configDir, f.resumeFlag)
 }
 
-func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, skill string) {
+func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, skill string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	chatMu.Lock()
 	chatCancel = cancel
@@ -420,7 +443,7 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, ski
 	}()
 
 	for {
-		content, toolCalls, err := chat(ctx, client, messages, skill)
+		content, toolCalls, err := chat(ctx, client, *messages, skill)
 		if err != nil {
 			if ctx.Err() != nil {
 				if !quiet {
@@ -433,7 +456,7 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, ski
 		}
 
 		if len(toolCalls) > 0 {
-			messages = append(messages, openai.ChatCompletionMessage{
+			*messages = append(*messages, openai.ChatCompletionMessage{
 				Role:      openai.ChatMessageRoleAssistant,
 				ToolCalls: toolCalls,
 			})
@@ -443,7 +466,7 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, ski
 					fmt.Fprintf(os.Stderr, "[tool: %s(%s)]\n", tc.Function.Name, tc.Function.Arguments)
 				}
 				output := executeTool(tc.Function.Name, tc.Function.Arguments)
-				messages = append(messages, openai.ChatCompletionMessage{
+				*messages = append(*messages, openai.ChatCompletionMessage{
 					Role:       openai.ChatMessageRoleTool,
 					Content:    output,
 					ToolCallID: tc.ID,
@@ -452,7 +475,7 @@ func runChat(client *openai.Client, messages []openai.ChatCompletionMessage, ski
 			continue
 		}
 
-		messages = append(messages, openai.ChatCompletionMessage{
+		*messages = append(*messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleAssistant,
 			Content: content,
 		})
