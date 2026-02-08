@@ -69,6 +69,7 @@ func processStreamResponse(stream *openai.ChatCompletionStream) (string, []opena
 	var fullContent strings.Builder
 	toolCallsMap := make(map[int]*openai.ToolCall)
 	var finishReason openai.FinishReason
+	inThinking := false
 
 	for {
 		resp, err := stream.Recv()
@@ -86,7 +87,18 @@ func processStreamResponse(stream *openai.ChatCompletionStream) (string, []opena
 		choice := resp.Choices[0]
 		finishReason = choice.FinishReason
 
+		if reasoning := choice.Delta.ReasoningContent; reasoning != "" && !quiet {
+			if !inThinking {
+				fmt.Fprint(os.Stderr, "\x1b[2K\r[thinking] ")
+				inThinking = true
+			}
+		}
+
 		if content := choice.Delta.Content; content != "" {
+			if inThinking {
+				fmt.Fprint(os.Stderr, "\x1b[2K\r")
+				inThinking = false
+			}
 			if !quiet {
 				fmt.Print(content)
 			}
