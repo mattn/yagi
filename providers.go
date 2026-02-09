@@ -1,12 +1,20 @@
 package main
 
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+)
+
 type Provider struct {
-	Name   string
-	APIURL string
-	EnvKey string
+	Name   string `json:"name"`
+	APIURL string `json:"apiurl"`
+	EnvKey string `json:"envKey,omitempty"`
 }
 
-var providers = []Provider{
+var providers = defaultProviders
+
+var defaultProviders = []Provider{
 	{
 		Name:   "openai",
 		APIURL: "https://api.openai.com/v1",
@@ -160,5 +168,25 @@ func findProvider(name string) *Provider {
 			return &providers[i]
 		}
 	}
+	return nil
+}
+
+func loadExtraProviders(configDir string) error {
+	var extraProviders []Provider
+	path := filepath.Join(configDir, "providers.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	err = json.Unmarshal(data, &extraProviders)
+	if err != nil {
+		return err
+	}
+	// If there is a name conflict between the default providers and the extra
+	// providers, the extra providers are given priority and merged first.
+	providers = append(extraProviders, defaultProviders...)
 	return nil
 }
