@@ -186,7 +186,7 @@ func chat(ctx context.Context, client *openai.Client, messages []openai.ChatComp
 
 const name = "yagi"
 
-const version = "0.0.25"
+const version = "0.0.26"
 
 var revision = "HEAD"
 
@@ -570,7 +570,7 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		selectedProvider = newProvider
 		model = modelName
 		var apiKey string
-		if (selectedProvider.EnvKey != "") {
+		if selectedProvider.EnvKey != "" {
 			apiKey = os.Getenv(selectedProvider.EnvKey)
 			if apiKey == "" {
 				fmt.Fprintf(os.Stderr, "Error: %s is not set. Keeping previous model.\n", selectedProvider.EnvKey)
