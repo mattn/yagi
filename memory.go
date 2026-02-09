@@ -70,11 +70,11 @@ func getAllMemory() map[string]string {
 func getMemoryAsMarkdown() string {
 	memoryMu.RLock()
 	defer memoryMu.RUnlock()
-	
+
 	if len(memoryData) == 0 {
 		return ""
 	}
-	
+
 	var md string
 	md = "\n---\n## Learned Information\n"
 	for k, v := range memoryData {
