@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestFindProvider_Exists(t *testing.T) {
-	names := []string{"openai", "google", "anthropic", "deepseek", "mistral", "groq", "xai", "perplexity", "together", "fireworks", "cerebras", "cohere", "openrouter", "sambanova", "zai"}
+	names := []string{"openai", "google", "anthropic", "deepseek", "mistral", "groq", "xai", "perplexity", "together", "fireworks", "cerebras", "cohere", "openrouter", "sambanova", "zai", "qwen"}
 	for _, name := range names {
 		p := findProvider(name)
 		if p == nil {

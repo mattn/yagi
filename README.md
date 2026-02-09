@@ -107,6 +107,7 @@ Models are specified in `provider/model` format. The following providers are sup
 | `cerebras` | `CEREBRAS_API_KEY` |
 | `cohere` | `COHERE_API_KEY` |
 | `openrouter` | `OPENROUTER_API_KEY` |
+| `qwen` | `QWEN_API_KEY` |
 | `sambanova` | `SAMBANOVA_API_KEY` |
 | `zai` | `Z_AI_API_KEY` |
 
