@@ -147,6 +147,11 @@ var providers = []Provider{
 		APIURL: "https://ai-gateway.vercel.sh/v1",
 		EnvKey: "AI_GATEWAY_API_KEY",
 	},
+	{
+		Name:   "qwen",
+		APIURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+		EnvKey: "QWEN_API_KEY",
+	},
 }
 
 func findProvider(name string) *Provider {
