@@ -370,12 +370,12 @@ func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
 	model = modelName
 
 	apiKey := apiKeyFlag
-	if apiKey == "" {
+	if apiKey == "" && selectedProvider.EnvKey != "" {
 		apiKey = os.Getenv(selectedProvider.EnvKey)
-	}
-	if apiKey == "" {
-		fmt.Fprintf(os.Stderr, "%s environment variable or -key flag is required\n", selectedProvider.EnvKey)
-		os.Exit(1)
+		if apiKey == "" {
+			fmt.Fprintf(os.Stderr, "%s environment variable or -key flag is required\n", selectedProvider.EnvKey)
+			os.Exit(1)
+		}
 	}
 
 	config := openai.DefaultConfig(apiKey)
@@ -566,12 +566,15 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		}
 		selectedProvider = newProvider
 		model = modelName
-		apiKey := os.Getenv(selectedProvider.EnvKey)
-		if apiKey == "" {
-			fmt.Fprintf(os.Stderr, "Error: %s is not set. Keeping previous model.\n", selectedProvider.EnvKey)
-			selectedProvider = prevProvider
-			model = prevModel
-			return
+		var apiKey string
+		if (selectedProvider.EnvKey != "") {
+			apiKey = os.Getenv(selectedProvider.EnvKey)
+			if apiKey == "" {
+				fmt.Fprintf(os.Stderr, "Error: %s is not set. Keeping previous model.\n", selectedProvider.EnvKey)
+				selectedProvider = prevProvider
+				model = prevModel
+				return
+			}
 		}
 		config := openai.DefaultConfig(apiKey)
 		config.BaseURL = selectedProvider.APIURL
