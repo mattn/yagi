@@ -103,7 +103,7 @@ var defaultProviders = []Provider{
 	{
 		Name:   "github-copilot",
 		APIURL: "https://api.githubcopilot.com",
-		EnvKey: "GITHUB_TOKEN",
+		EnvKey: "COPILOT_TOKEN",
 	},
 	{
 		Name:   "google-antigravity",
