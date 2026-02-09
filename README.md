@@ -120,6 +120,46 @@ yagi -model google/gemini-2.5-flash
 
 Use `yagi -list` to see all available models, or `yagi -list <keyword>` to filter.
 
+### Local Model Provider
+
+Yagi can use not only cloud-based LLM models but also locally running models.
+
+The following explains how to use Qwen2.5-7B-Insturct running on llama-server.
+
+1. Add the locally running `llama-server` provider to `~/.config/yagi/providers.json`.
+
+    ```json
+    [
+      {
+        "name": "llama-server",
+        "apiurl": "http://localhost:8080/v1"
+      }
+    ]
+    ```
+
+    By changing the port number correctly, it will also work with ollama (11434) and LM Studio (1234).
+
+    By changing the hostname (IP address), you can connect to an AI server running on another machine on your local LAN.
+
+    You can add multiple providers by changing the name.
+
+2. Start llama-server
+
+    ```
+    llama-server -hf Qwen/Qwen2.5-7B-Instruct-GGUF:qwen2.5-7b-instruct-q4_k_m -c 0 -fa on --jinja
+    ```
+
+    Don't forget to specify the `--jinja` option.
+
+3. Start yagi
+
+    ```
+    yagi -model llama-server/
+    ```
+
+    `llama-server` is the name of the provider you added in Step 1.
+    The model name can be empty, but it is required, so you must add a `/`.
+
 ## Session Resumption
 
 Yagi automatically saves conversation history per working directory. Use `-resume` to continue where you left off.
