@@ -7,9 +7,9 @@ import (
 )
 
 type Provider struct {
-	Name   string
-	APIURL string
-	EnvKey string
+	Name   string `json:"name"`
+	APIURL string `json:"apiurl"`
+	EnvKey string `json:"envKey,omitempty"`
 }
 
 var providers = defaultProviders
