@@ -14,9 +14,9 @@ import (
 const maxSessionMessages = 100
 
 type sessionData struct {
-	Dir       string                           `json:"dir"`
-	UpdatedAt string                           `json:"updated_at"`
-	Messages  []openai.ChatCompletionMessage   `json:"messages"`
+	Dir       string                         `json:"dir"`
+	UpdatedAt string                         `json:"updated_at"`
+	Messages  []openai.ChatCompletionMessage `json:"messages"`
 }
 
 func sessionsDir(configDir string) string {

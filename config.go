@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	Prompt string `json:"prompt"`
+	Prompt       string `json:"prompt"`
+	IdentityFile string `json:"identity_file"`
 }
 
 var appConfig = Config{

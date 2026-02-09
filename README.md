@@ -137,6 +137,40 @@ yagi -resume
 
 Sessions are stored in `~/.config/yagi/sessions/` and are keyed by directory path. The last 100 messages (excluding system prompts) are retained. Tool call history is preserved so the AI retains full context.
 
+## Configuration
+
+### Identity/Persona Customization
+
+You can customize the AI's behavior by specifying a custom identity file. The identity file path can be configured in three ways (in order of priority):
+
+1. **Environment Variable** (recommended for GitHub Actions):
+   ```bash
+   export YAGI_IDENTITY_FILE=/path/to/custom-identity.md
+   yagi
+   ```
+
+2. **Config File** (`~/.config/yagi/config.json`):
+   ```json
+   {
+     "prompt": "> ",
+     "identity_file": "custom-identity.md"
+   }
+   ```
+   Relative paths are resolved from the config directory (`~/.config/yagi/`).
+
+3. **Default**: `~/.config/yagi/IDENTITY.md`
+
+#### Example for GitHub Actions
+
+```yaml
+- name: Run yagi with custom identity
+  env:
+    YAGI_IDENTITY_FILE: ${{ github.workspace }}/.github/yagi-identity.md
+    GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  run: |
+    yagi "Review the latest commit"
+```
+
 ## Memory System
 
 Yagi can learn and remember information across conversations using the built-in memory system. Learned information is stored in `~/.config/yagi/memory.json` and automatically included in the AI's context.

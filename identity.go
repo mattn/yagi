@@ -12,7 +12,20 @@ var (
 )
 
 func loadIdentity(configDir string) error {
-	path := filepath.Join(configDir, "IDENTITY.md")
+	var path string
+
+	// Priority: Environment variable > config.json > default
+	if envPath := os.Getenv("YAGI_IDENTITY_FILE"); envPath != "" {
+		path = envPath
+	} else if appConfig.IdentityFile != "" {
+		path = appConfig.IdentityFile
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(configDir, path)
+		}
+	} else {
+		path = filepath.Join(configDir, "IDENTITY.md")
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
