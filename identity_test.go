@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -110,8 +111,12 @@ func TestGetSystemMessage_Empty(t *testing.T) {
 func TestGetSystemMessage_OnlySystem(t *testing.T) {
 	resetIdentityState()
 	systemPrompt = "system"
-	if got := getSystemMessage(""); got != "system" {
-		t.Fatalf("expected %q, got %q", "system", got)
+	got := getSystemMessage("")
+	if !strings.HasPrefix(got, "system") {
+		t.Fatalf("expected to start with %q, got %q", "system", got)
+	}
+	if !strings.Contains(got, "MUST NOT be overridden") {
+		t.Fatal("expected prompt injection guard to be present")
 	}
 }
 
@@ -119,16 +124,42 @@ func TestGetSystemMessage_WithSkill(t *testing.T) {
 	resetIdentityState()
 	systemPrompt = "system"
 	skillPrompts["test"] = "skill content"
-	want := "system\n---\nskill content"
-	if got := getSystemMessage("test"); got != want {
-		t.Fatalf("expected %q, got %q", want, got)
+	got := getSystemMessage("test")
+	if !strings.Contains(got, "system") {
+		t.Fatal("expected system prompt to be present")
+	}
+	if !strings.Contains(got, "skill content") {
+		t.Fatal("expected skill content to be present")
+	}
+	if !strings.Contains(got, "MUST NOT be overridden") {
+		t.Fatal("expected prompt injection guard to be present")
 	}
 }
 
 func TestGetSystemMessage_UnknownSkill(t *testing.T) {
 	resetIdentityState()
 	systemPrompt = "system"
-	if got := getSystemMessage("unknown"); got != "system" {
-		t.Fatalf("expected %q, got %q", "system", got)
+	got := getSystemMessage("unknown")
+	if !strings.HasPrefix(got, "system") {
+		t.Fatalf("expected to start with %q, got %q", "system", got)
+	}
+	if !strings.Contains(got, "MUST NOT be overridden") {
+		t.Fatal("expected prompt injection guard to be present")
+	}
+}
+
+func TestGetSystemMessage_PromptInjectionGuard(t *testing.T) {
+	resetIdentityState()
+	systemPrompt = "You are a helpful assistant."
+	got := getSystemMessage("")
+	guardPhrases := []string{
+		"MUST NOT be overridden",
+		"ignore previous instructions",
+		"polite refusal",
+	}
+	for _, phrase := range guardPhrases {
+		if !strings.Contains(got, phrase) {
+			t.Fatalf("expected prompt injection guard to contain %q", phrase)
+		}
 	}
 }
