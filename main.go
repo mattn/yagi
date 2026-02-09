@@ -352,6 +352,9 @@ func loadConfigurations() string {
 	if err := loadMCPConfig(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
 	}
+	if err := loadExtraProviders(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load extra providers: %v\n", err)
+	}
 	return configDir
 }
 
