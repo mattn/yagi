@@ -43,6 +43,29 @@ The default model can be overridden with the `YAGI_MODEL` environment variable.
 
 When run without arguments, yagi starts in interactive mode. Pass a prompt as arguments or via pipe for one-shot mode.
 
+### Interactive Commands
+
+In interactive mode, the following slash commands are available:
+
+| Command | Description |
+|---------|-------------|
+| `/model [name]` | Show or change the current model |
+| `/agent [on\|off]` | Toggle autonomous mode (auto-execute tools without approval) |
+| `/plan [on\|off]` | Toggle planning mode (show execution plan before acting) |
+| `/mode` | Show current mode settings |
+| `/clear` | Clear conversation history |
+| `/revoke [name]` | Revoke plugin approval (`all` to revoke all) |
+| `/exit` | Exit yagi |
+| `/help` | Show available commands |
+
+### Autonomous Mode
+
+When enabled (`/agent on`), tools are executed automatically without requiring user approval. This is useful for hands-free operation. The maximum number of autonomous iterations per turn is 20.
+
+### Planning Mode
+
+When enabled (`/plan on`), yagi asks the AI to generate a step-by-step execution plan before acting. You can review and confirm or cancel the plan.
+
 ### Interactive Mode
 
 ```bash
@@ -251,7 +274,7 @@ Define a `Tool` struct with the following fields:
 | `Name` | `string` | Tool name (used in function calling) |
 | `Description` | `string` | Description shown to the LLM |
 | `Parameters` | `string` | JSON Schema for the tool's parameters |
-| `Run` | `func(string) (string, error)` | Function that receives a JSON arguments string and returns the result and error |
+| `Run` | `func(context.Context, string) (string, error)` | Function that receives a context and JSON arguments string, returns the result and error |
 
 The package name must be `tool`.
 
@@ -260,13 +283,16 @@ The package name must be `tool`.
 ```go
 package tool
 
-import "encoding/json"
+import (
+	"context"
+	"encoding/json"
+)
 
 var Tool = struct {
 	Name        string
 	Description string
 	Parameters  string
-	Run         func(string) (string, error)
+	Run         func(context.Context, string) (string, error)
 }{
 	Name:        "reverse",
 	Description: "Reverse the input string",
@@ -280,7 +306,7 @@ var Tool = struct {
 		},
 		"required": ["text"]
 	}`,
-	Run: func(args string) (string, error) {
+	Run: func(ctx context.Context, args string) (string, error) {
 		var params struct {
 			Text string `json:"text"`
 		}
@@ -302,13 +328,13 @@ Tools can import `"hostapi"` to access host-provided functions that require depe
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `FetchURL` | `func(url string, headers map[string]string) string` | Fetch URL content as raw body with optional HTTP headers |
-| `HTMLToText` | `func(html string) string` | Convert HTML to plain text with links preserved |
-| `WebSocketSend` | `func(url, message string, maxMessages, timeoutSec int) string` | Send a WebSocket message and collect responses as a JSON array |
-| `SaveMemory` | `func(key, value string) string` | Save a key-value pair to memory.json (returns "Saved" or error message) |
-| `GetMemory` | `func(key string) string` | Retrieve a value from memory by key (returns empty string if not found) |
-| `DeleteMemory` | `func(key string) string` | Delete a key from memory (returns "Deleted" or error message) |
-| `ListMemory` | `func() string` | List all memory entries as JSON |
+| `FetchURL` | `func(ctx context.Context, url string, headers map[string]string) string` | Fetch URL content as raw body with optional HTTP headers |
+| `HTMLToText` | `func(ctx context.Context, html string) string` | Convert HTML to plain text with links preserved |
+| `WebSocketSend` | `func(ctx context.Context, url, message string, maxMessages, timeoutSec int) string` | Send a WebSocket message and collect responses as a JSON array |
+| `SaveMemory` | `func(ctx context.Context, key, value string) string` | Save a key-value pair to memory.json (returns "Saved" or error message) |
+| `GetMemory` | `func(ctx context.Context, key string) string` | Retrieve a value from memory by key (returns empty string if not found) |
+| `DeleteMemory` | `func(ctx context.Context, key string) string` | Delete a key from memory (returns "Deleted" or error message) |
+| `ListMemory` | `func(ctx context.Context) string` | List all memory entries as JSON |
 
 #### Example: URL Fetcher
 
@@ -316,6 +342,7 @@ Tools can import `"hostapi"` to access host-provided functions that require depe
 package tool
 
 import (
+	"context"
 	"encoding/json"
 	"hostapi"
 )
@@ -324,7 +351,7 @@ var Tool = struct {
 	Name        string
 	Description string
 	Parameters  string
-	Run         func(string) (string, error)
+	Run         func(context.Context, string) (string, error)
 }{
 	Name:        "fetch_url",
 	Description: "Fetch the content of a URL and return it as text",
@@ -338,14 +365,14 @@ var Tool = struct {
 		},
 		"required": ["url"]
 	}`,
-	Run: func(args string) (string, error) {
+	Run: func(ctx context.Context, args string) (string, error) {
 		var params struct {
 			URL string `json:"url"`
 		}
 		if err := json.Unmarshal([]byte(args), &params); err != nil {
 			return "", err
 		}
-		return hostapi.FetchURL(params.URL, nil), nil
+		return hostapi.FetchURL(ctx, params.URL, nil), nil
 	},
 }
 ```
@@ -356,6 +383,7 @@ var Tool = struct {
 package tool
 
 import (
+	"context"
 	"encoding/json"
 	"hostapi"
 )
@@ -364,7 +392,7 @@ var Tool = struct {
 	Name        string
 	Description string
 	Parameters  string
-	Run         func(string) (string, error)
+	Run         func(context.Context, string) (string, error)
 }{
 	Name:        "remember",
 	Description: "Remember information for future conversations",
@@ -376,7 +404,7 @@ var Tool = struct {
 		},
 		"required": ["key", "value"]
 	}`,
-	Run: func(args string) (string, error) {
+	Run: func(ctx context.Context, args string) (string, error) {
 		var params struct {
 			Key   string `json:"key"`
 			Value string `json:"value"`
@@ -384,7 +412,7 @@ var Tool = struct {
 		if err := json.Unmarshal([]byte(args), &params); err != nil {
 			return "", err
 		}
-		return hostapi.SaveMemory(params.Key, params.Value), nil
+		return hostapi.SaveMemory(ctx, params.Key, params.Value), nil
 	},
 }
 ```
