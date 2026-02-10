@@ -39,9 +39,11 @@ func initReadline(prompt, configDir string) error {
 			readline.PcItem("/help"),
 			readline.PcItem("/model", modelItems...),
 			readline.PcItem("/clear"),
-			readline.PcItem("/save"),
 			readline.PcItem("/memory"),
 			readline.PcItem("/revoke"),
+			readline.PcItem("/agent"),
+			readline.PcItem("/plan"),
+			readline.PcItem("/mode"),
 		),
 	}
 	if configDir != "" {

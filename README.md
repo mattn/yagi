@@ -302,7 +302,8 @@ Tools can import `"hostapi"` to access host-provided functions that require depe
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `FetchURL` | `func(url string) string` | Fetch URL content as text (HTML is converted to plain text with links) |
+| `FetchURL` | `func(url string, headers map[string]string) string` | Fetch URL content as raw body with optional HTTP headers |
+| `HTMLToText` | `func(html string) string` | Convert HTML to plain text with links preserved |
 | `WebSocketSend` | `func(url, message string, maxMessages, timeoutSec int) string` | Send a WebSocket message and collect responses as a JSON array |
 | `SaveMemory` | `func(key, value string) string` | Save a key-value pair to memory.json (returns "Saved" or error message) |
 | `GetMemory` | `func(key string) string` | Retrieve a value from memory by key (returns empty string if not found) |
@@ -344,7 +345,7 @@ var Tool = struct {
 		if err := json.Unmarshal([]byte(args), &params); err != nil {
 			return "", err
 		}
-		return hostapi.FetchURL(params.URL), nil
+		return hostapi.FetchURL(params.URL, nil), nil
 	},
 }
 ```

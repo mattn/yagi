@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -19,6 +20,7 @@ var (
 	hostSymbols = interp.Exports{
 		"hostapi/hostapi": map[string]reflect.Value{
 			"FetchURL":      reflect.ValueOf(fetchURL),
+			"HTMLToText":    reflect.ValueOf(htmlToText),
 			"WebSocketSend": reflect.ValueOf(webSocketSend),
 			"SaveMemory":    reflect.ValueOf(saveMemoryEntry),
 			"GetMemory":     reflect.ValueOf(getMemoryEntry),
@@ -231,28 +233,21 @@ func loadPlugin(path, workDir, configDir string, approvals *approvalRecord) erro
 	return nil
 }
 
-func convertRunFunc(runVal reflect.Value) func(string) (string, error) {
-	runFn, ok := runVal.Interface().(func(string) (string, error))
-	if !ok {
-		if runVal.Kind() == reflect.Func {
-			runFn = func(args string) (string, error) {
-				results := runVal.Call([]reflect.Value{reflect.ValueOf(args)})
-				if len(results) >= 2 {
-					if err, ok := results[1].Interface().(error); ok && err != nil {
-						return "", err
-					}
-					return results[0].Interface().(string), nil
-				}
-				if len(results) > 0 {
-					return results[0].Interface().(string), nil
-				}
-				return "", nil
+func convertRunFunc(runVal reflect.Value) func(context.Context, string) (string, error) {
+	return func(ctx context.Context, args string) (string, error) {
+		results := runVal.Call([]reflect.Value{
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(args),
+		})
+		if len(results) >= 2 {
+			if err, ok := results[1].Interface().(error); ok && err != nil {
+				return "", err
 			}
-		} else {
-			return func(args string) (string, error) {
-				return "", fmt.Errorf("Run is not a function")
-			}
+			return results[0].Interface().(string), nil
 		}
+		if len(results) > 0 {
+			return results[0].Interface().(string), nil
+		}
+		return "", nil
 	}
-	return runFn
 }

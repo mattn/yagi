@@ -144,7 +144,7 @@ func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, 
 		})
 
 		for _, tc := range toolCalls {
-			output := executeTool(tc.Function.Name, tc.Function.Arguments)
+			output := executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
 			messages = append(messages, openai.ChatCompletionMessage{
 				Role:       openai.ChatMessageRoleTool,
 				Content:    output,
@@ -183,7 +183,7 @@ func completeChat(client *openai.Client, messages []openai.ChatCompletionMessage
 		})
 
 		for _, tc := range toolCalls {
-			output := executeTool(tc.Function.Name, tc.Function.Arguments)
+			output := executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
 			messages = append(messages, openai.ChatCompletionMessage{
 				Role:       openai.ChatMessageRoleTool,
 				Content:    output,
