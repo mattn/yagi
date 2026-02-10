@@ -105,6 +105,40 @@ func addPluginApproval(approvals *approvalRecord, workDir, pluginName string) {
 	approvals.Directories[workDir] = append(plugins, pluginName)
 }
 
+func removePluginApproval(approvals *approvalRecord, workDir, pluginName string) bool {
+	plugins, exists := approvals.Directories[workDir]
+	if !exists {
+		return false
+	}
+	for i, name := range plugins {
+		if name == pluginName {
+			approvals.Directories[workDir] = append(plugins[:i], plugins[i+1:]...)
+			if len(approvals.Directories[workDir]) == 0 {
+				delete(approvals.Directories, workDir)
+			}
+			return true
+		}
+	}
+	return false
+}
+
+func removeAllPluginApprovals(approvals *approvalRecord, workDir string) int {
+	plugins, exists := approvals.Directories[workDir]
+	if !exists {
+		return 0
+	}
+	count := len(plugins)
+	delete(approvals.Directories, workDir)
+	return count
+}
+
+func listApprovedPlugins(approvals *approvalRecord, workDir string) []string {
+	if plugins, exists := approvals.Directories[workDir]; exists {
+		return plugins
+	}
+	return nil
+}
+
 func loadPlugins(dir, configDir string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {

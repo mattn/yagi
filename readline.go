@@ -41,6 +41,7 @@ func initReadline(prompt, configDir string) error {
 			readline.PcItem("/clear"),
 			readline.PcItem("/save"),
 			readline.PcItem("/memory"),
+			readline.PcItem("/revoke"),
 		),
 	}
 	if configDir != "" {

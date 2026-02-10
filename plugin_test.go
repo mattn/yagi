@@ -124,6 +124,96 @@ func TestLoadSaveApprovalRecords(t *testing.T) {
 	}
 }
 
+func TestRemovePluginApproval_Exists(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: map[string][]string{
+			"/work/dir": {"pluginA", "pluginB", "pluginC"},
+		},
+	}
+	if !removePluginApproval(approvals, "/work/dir", "pluginB") {
+		t.Error("expected removePluginApproval to return true")
+	}
+	plugins := approvals.Directories["/work/dir"]
+	if len(plugins) != 2 {
+		t.Errorf("expected 2 plugins, got %d: %v", len(plugins), plugins)
+	}
+	if isPluginApproved(approvals, "/work/dir", "pluginB") {
+		t.Error("pluginB should no longer be approved")
+	}
+}
+
+func TestRemovePluginApproval_NotExists(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: map[string][]string{
+			"/work/dir": {"pluginA"},
+		},
+	}
+	if removePluginApproval(approvals, "/work/dir", "pluginX") {
+		t.Error("expected removePluginApproval to return false")
+	}
+}
+
+func TestRemovePluginApproval_LastPlugin(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: map[string][]string{
+			"/work/dir": {"pluginA"},
+		},
+	}
+	if !removePluginApproval(approvals, "/work/dir", "pluginA") {
+		t.Error("expected removePluginApproval to return true")
+	}
+	if _, exists := approvals.Directories["/work/dir"]; exists {
+		t.Error("expected directory entry to be removed when last plugin is revoked")
+	}
+}
+
+func TestRemoveAllPluginApprovals(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: map[string][]string{
+			"/work/dir": {"pluginA", "pluginB"},
+		},
+	}
+	count := removeAllPluginApprovals(approvals, "/work/dir")
+	if count != 2 {
+		t.Errorf("expected 2, got %d", count)
+	}
+	if _, exists := approvals.Directories["/work/dir"]; exists {
+		t.Error("expected directory entry to be removed")
+	}
+}
+
+func TestRemoveAllPluginApprovals_Empty(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: make(map[string][]string),
+	}
+	count := removeAllPluginApprovals(approvals, "/work/dir")
+	if count != 0 {
+		t.Errorf("expected 0, got %d", count)
+	}
+}
+
+func TestListApprovedPlugins(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: map[string][]string{
+			"/work/dir": {"pluginA", "pluginB"},
+		},
+	}
+	plugins := listApprovedPlugins(approvals, "/work/dir")
+	if len(plugins) != 2 {
+		t.Errorf("expected 2 plugins, got %d", len(plugins))
+	}
+}
+
+func TestListApprovedPlugins_Empty(t *testing.T) {
+	approvals := &approvalRecord{
+		Directories: make(map[string][]string),
+	}
+	plugins := listApprovedPlugins(approvals, "/work/dir")
+	if plugins != nil {
+		t.Errorf("expected nil, got %v", plugins)
+	}
+}
+
 func TestLoadApprovalRecords_NonExistent(t *testing.T) {
 	tmpDir := t.TempDir()
 	record, err := loadApprovalRecords(tmpDir)
