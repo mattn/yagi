@@ -33,7 +33,7 @@ var (
 	selectedProvider *Provider
 	model            string
 	tools            []openai.Tool
-	toolFuncs        = map[string]func(string) (string, error){}
+	toolFuncs        = map[string]func(context.Context, string) (string, error){}
 	toolMeta         = map[string]toolMetadata{}
 	quiet            bool
 	verbose          bool
@@ -41,9 +41,13 @@ var (
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
 	stderr     = colorable.NewColorableStderr()
+
+	// Run modes for autonomous and planning capabilities
+	autonomousMode bool
+	planningMode   bool
 )
 
-func registerTool(name, description string, parameters json.RawMessage, fn func(string) (string, error), safe bool) {
+func registerTool(name, description string, parameters json.RawMessage, fn func(context.Context, string) (string, error), safe bool) {
 	var params openai.FunctionDefinition
 	params.Name = name
 	params.Description = description
@@ -57,7 +61,7 @@ func registerTool(name, description string, parameters json.RawMessage, fn func(
 	toolMeta[name] = toolMetadata{safe: safe}
 }
 
-func executeTool(name, arguments string) string {
+func executeTool(ctx context.Context, name, arguments string) string {
 	if fn, ok := toolFuncs[name]; ok {
 		meta, isMeta := toolMeta[name]
 		if !skipApproval && isMeta && !meta.safe && pluginApprovals != nil {
@@ -71,7 +75,7 @@ func executeTool(name, arguments string) string {
 				}
 			}
 		}
-		result, err := fn(arguments)
+		result, err := fn(ctx, arguments)
 		if err != nil {
 			return fmt.Sprintf("Error: %v", err)
 		}
@@ -201,7 +205,7 @@ func setupBuiltInTools() {
 			}
 		},
 		"required": ["info_type"]
-	}`), func(args string) (string, error) {
+	}`), func(ctx context.Context, args string) (string, error) {
 		var req struct {
 			InfoType string `json:"info_type"`
 		}
@@ -234,7 +238,7 @@ func setupBuiltInTools() {
 			}
 		},
 		"required": ["key", "value"]
-	}`), func(args string) (string, error) {
+	}`), func(ctx context.Context, args string) (string, error) {
 		var req struct {
 			Key   string `json:"key"`
 			Value string `json:"value"`
@@ -242,7 +246,7 @@ func setupBuiltInTools() {
 		if err := json.Unmarshal([]byte(args), &req); err != nil {
 			return "", err
 		}
-		return saveMemoryEntry(req.Key, req.Value)
+		return saveMemoryEntry(ctx, req.Key, req.Value)
 	}, true)
 
 	registerTool("getMemoryEntry", "Retrieve information from memory.", json.RawMessage(`{
@@ -254,14 +258,14 @@ func setupBuiltInTools() {
 			}
 		},
 		"required": ["key"]
-	}`), func(args string) (string, error) {
+	}`), func(ctx context.Context, args string) (string, error) {
 		var req struct {
 			Key string `json:"key"`
 		}
 		if err := json.Unmarshal([]byte(args), &req); err != nil {
 			return "", err
 		}
-		return getMemoryEntry(req.Key)
+		return getMemoryEntry(ctx, req.Key)
 	}, true)
 
 	registerTool("deleteMemoryEntry", "Delete information from memory.", json.RawMessage(`{
@@ -273,21 +277,21 @@ func setupBuiltInTools() {
 			}
 		},
 		"required": ["key"]
-	}`), func(args string) (string, error) {
+	}`), func(ctx context.Context, args string) (string, error) {
 		var req struct {
 			Key string `json:"key"`
 		}
 		if err := json.Unmarshal([]byte(args), &req); err != nil {
 			return "", err
 		}
-		return deleteMemoryEntry(req.Key)
+		return deleteMemoryEntry(ctx, req.Key)
 	}, true)
 
 	registerTool("listMemoryEntries", "List all saved information.", json.RawMessage(`{
 		"type": "object",
 		"properties": {}
-	}`), func(args string) (string, error) {
-		return listMemoryEntries()
+	}`), func(ctx context.Context, args string) (string, error) {
+		return listMemoryEntries(ctx)
 	}, true)
 }
 
@@ -494,6 +498,31 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 			continue
 		}
 
+		// Planning mode: ask AI to create a plan first
+		if planningMode {
+			plan, err := generatePlan(client, input, skillFlag)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error generating plan: %v\n", err)
+				continue
+			}
+			fmt.Fprintln(stderr, "\n[Plan]")
+			fmt.Fprintln(stderr, plan)
+
+			response, err := readFromTTY("\nExecute this plan? [y/yes/ok or n/no]: ")
+			if err != nil {
+				fmt.Fprintf(stderr, "Error reading response: %v\n", err)
+				continue
+			}
+			response = strings.TrimSpace(strings.ToLower(response))
+			confirmed := response == "y" || response == "yes" || response == "ok"
+
+			if !confirmed {
+				fmt.Fprintln(stderr, "Plan cancelled.")
+				continue
+			}
+			fmt.Fprintln(stderr, "Executing plan...")
+		}
+
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
 			Content: input,
@@ -514,6 +543,65 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		default:
 		}
 	}
+}
+
+func generatePlan(client *openai.Client, userInput, skill string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	planPrompt := fmt.Sprintf(`The user wants to accomplish the following task:
+"%s"
+
+Please create a step-by-step execution plan for this task. List the specific tools you will use and in what order. Be concise but specific.
+
+Format your response as:
+1. [Step 1 description] - using [tool name]
+2. [Step 2 description] - using [tool name]
+...`, userInput)
+
+	systemMsg := getSystemMessage(skill)
+	messages := []openai.ChatCompletionMessage{}
+
+	if systemMsg != "" {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: systemMsg,
+		})
+	}
+
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: planPrompt,
+	})
+
+	stream, err := client.CreateChatCompletionStream(
+		ctx,
+		openai.ChatCompletionRequest{
+			Model:    model,
+			Messages: messages,
+			Tools:    tools,
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+	defer stream.Close()
+
+	var plan strings.Builder
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		if len(resp.Choices) > 0 && resp.Choices[0].Delta.Content != "" {
+			plan.WriteString(resp.Choices[0].Delta.Content)
+		}
+	}
+
+	return plan.String(), nil
 }
 
 func handleSlashCommand(input string, client **openai.Client, configDir string, messages *[]openai.ChatCompletionMessage) {
@@ -539,6 +627,9 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 	case "/help":
 		fmt.Println("Available commands:")
 		fmt.Println("  /model [name]   - Show/change model (e.g., /model openai/gpt-4o)")
+		fmt.Println("  /agent [on|off] - Toggle autonomous mode (auto-execute tools without approval)")
+		fmt.Println("  /plan [on|off]  - Toggle planning mode (show execution plan before acting)")
+		fmt.Println("  /mode           - Show current mode settings")
 		fmt.Println("  /clear          - Clear conversation history")
 		fmt.Println("  /revoke [name]  - Revoke plugin approval (use 'all' to revoke all)")
 		fmt.Println("  /exit           - Exit yagi")
@@ -592,7 +683,7 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		}
 		fmt.Println("Conversation cleared.")
 	case "/memory":
-		result, err := listMemoryEntries()
+		result, err := listMemoryEntries(context.Background())
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			return
@@ -646,6 +737,58 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 				return
 			}
 			fmt.Printf("Revoked approval for plugin %q.\n", args)
+		}
+	case "/agent":
+		if args == "" {
+			if autonomousMode {
+				fmt.Println("Autonomous mode: ON (tools will be executed automatically)")
+			} else {
+				fmt.Println("Autonomous mode: OFF (approval required for tools)")
+			}
+			return
+		}
+		switch strings.ToLower(args) {
+		case "on", "true", "1", "yes":
+			autonomousMode = true
+			skipApproval = true
+			fmt.Println("Autonomous mode enabled. Tools will be executed automatically.")
+		case "off", "false", "0", "no":
+			autonomousMode = false
+			skipApproval = false
+			fmt.Println("Autonomous mode disabled. Tools require approval.")
+		default:
+			fmt.Fprintf(os.Stderr, "Usage: /agent [on|off]\n")
+		}
+	case "/plan":
+		if args == "" {
+			if planningMode {
+				fmt.Println("Planning mode: ON (execution plan will be shown before acting)")
+			} else {
+				fmt.Println("Planning mode: OFF (immediate execution)")
+			}
+			return
+		}
+		switch strings.ToLower(args) {
+		case "on", "true", "1", "yes":
+			planningMode = true
+			fmt.Println("Planning mode enabled. Execution plan will be shown before acting.")
+		case "off", "false", "0", "no":
+			planningMode = false
+			fmt.Println("Planning mode disabled. Immediate execution.")
+		default:
+			fmt.Fprintf(os.Stderr, "Usage: /plan [on|off]\n")
+		}
+	case "/mode":
+		fmt.Println("Current mode settings:")
+		if autonomousMode {
+			fmt.Println("  Autonomous mode: ON")
+		} else {
+			fmt.Println("  Autonomous mode: OFF")
+		}
+		if planningMode {
+			fmt.Println("  Planning mode:   ON")
+		} else {
+			fmt.Println("  Planning mode:   OFF")
 		}
 	}
 }
@@ -711,7 +854,18 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 		cancel()
 	}()
 
+	const maxAutonomousIterations = 20
+	iteration := 0
+
 	for {
+		iteration++
+		if autonomousMode && iteration > maxAutonomousIterations {
+			if !quiet {
+				fmt.Fprintf(stderr, "\n\x1b[33m[Reached maximum autonomous iterations (%d)]\x1b[0m\n", maxAutonomousIterations)
+			}
+			break
+		}
+
 		content, toolCalls, err := chat(ctx, client, *messages, skill)
 		if err != nil {
 			if ctx.Err() != nil {
@@ -732,9 +886,13 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 
 			for _, tc := range toolCalls {
 				if !quiet {
-					fmt.Fprintf(stderr, "\n\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
+					if autonomousMode {
+						fmt.Fprintf(stderr, "\n\x1b[36m[autonomous step %d] tool: %s(%s)\x1b[0m\n", iteration, tc.Function.Name, tc.Function.Arguments)
+					} else {
+						fmt.Fprintf(stderr, "\n\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
+					}
 				}
-				output := executeTool(tc.Function.Name, tc.Function.Arguments)
+				output := executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
 				if !quiet && (strings.HasPrefix(output, "Error: ") || strings.HasPrefix(output, "Unknown tool: ")) {
 					fmt.Fprintf(stderr, "\x1b[31m[tool error: %s]\x1b[0m\n", output)
 				}

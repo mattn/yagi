@@ -77,11 +77,11 @@ func loadMCPConfig(configDir string) error {
 				toolName,
 				tool.Description,
 				marshalSchema(tool.InputSchema),
-				func(arguments string) (string, error) {
+				func(ctx context.Context, arguments string) (string, error) {
 					var args map[string]any
 					json.Unmarshal([]byte(arguments), &args)
 
-					callCtx, callCancel := context.WithTimeout(context.Background(), 60*time.Second)
+					callCtx, callCancel := context.WithTimeout(ctx, 60*time.Second)
 					defer callCancel()
 
 					res, err := sess.CallTool(callCtx, &mcp.CallToolParams{
