@@ -540,6 +540,7 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		fmt.Println("Available commands:")
 		fmt.Println("  /model [name]   - Show/change model (e.g., /model openai/gpt-4o)")
 		fmt.Println("  /clear          - Clear conversation history")
+		fmt.Println("  /revoke [name]  - Revoke plugin approval (use 'all' to revoke all)")
 		fmt.Println("  /exit           - Exit yagi")
 		fmt.Println("  /help           - Show this help")
 		fmt.Println()
@@ -598,6 +599,54 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		}
 		fmt.Println("Saved memories:")
 		fmt.Println(result)
+	case "/revoke":
+		if pluginApprovals == nil {
+			fmt.Fprintf(os.Stderr, "No approval records loaded.\n")
+			return
+		}
+		workDir, err := os.Getwd()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			return
+		}
+		if args == "" {
+			approved := listApprovedPlugins(pluginApprovals, workDir)
+			if len(approved) == 0 {
+				fmt.Println("No approved plugins for this directory.")
+				return
+			}
+			fmt.Println("Approved plugins for this directory:")
+			for _, name := range approved {
+				fmt.Printf("  - %s\n", name)
+			}
+			fmt.Println()
+			fmt.Println("Usage:")
+			fmt.Println("  /revoke <name>  - Revoke a specific plugin")
+			fmt.Println("  /revoke all     - Revoke all plugins")
+			return
+		}
+		if args == "all" {
+			count := removeAllPluginApprovals(pluginApprovals, workDir)
+			if count == 0 {
+				fmt.Println("No approved plugins for this directory.")
+				return
+			}
+			if err := saveApprovalRecords(pluginConfigDir, pluginApprovals); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to save approval: %v\n", err)
+				return
+			}
+			fmt.Printf("Revoked %d plugin(s) for this directory.\n", count)
+		} else {
+			if !removePluginApproval(pluginApprovals, workDir, args) {
+				fmt.Fprintf(os.Stderr, "Plugin %q is not approved for this directory.\n", args)
+				return
+			}
+			if err := saveApprovalRecords(pluginConfigDir, pluginApprovals); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to save approval: %v\n", err)
+				return
+			}
+			fmt.Printf("Revoked approval for plugin %q.\n", args)
+		}
 	}
 }
 
