@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/yagi-agent/yagi/engine"
 )
 
 type JSONRPCRequest struct {
@@ -37,7 +38,7 @@ type ChatResponse struct {
 	Error   string `json:"error,omitempty"`
 }
 
-func runSTDIOMode(client *openai.Client) error {
+func runSTDIOMode() error {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -53,9 +54,9 @@ func runSTDIOMode(client *openai.Client) error {
 
 		// Detect format
 		if _, hasJSONRPC := raw["jsonrpc"]; hasJSONRPC {
-			handleJSONRPC(client, line)
+			handleJSONRPC(line)
 		} else {
-			handleLineDelimited(client, line)
+			handleLineDelimited(line)
 		}
 	}
 
@@ -65,7 +66,7 @@ func runSTDIOMode(client *openai.Client) error {
 	return nil
 }
 
-func handleJSONRPC(client *openai.Client, line string) {
+func handleJSONRPC(line string) {
 	var req JSONRPCRequest
 	if err := json.Unmarshal([]byte(line), &req); err != nil {
 		writeJSONRPCError(nil, "Parse error", err.Error())
@@ -84,7 +85,7 @@ func handleJSONRPC(client *openai.Client, line string) {
 	}
 
 	if chatReq.Stream {
-		if err := streamChat(client, chatReq.Messages, func(content string) {
+		if err := streamChat(chatReq.Messages, func(content string) {
 			writeJSONRPCResult(req.ID, ChatResponse{Content: content})
 		}); err != nil {
 			writeJSONRPCError(req.ID, "Chat error", err.Error())
@@ -92,7 +93,7 @@ func handleJSONRPC(client *openai.Client, line string) {
 		}
 		writeJSONRPCResult(req.ID, ChatResponse{Done: true})
 	} else {
-		result, err := completeChat(client, chatReq.Messages)
+		result, err := completeChat(chatReq.Messages)
 		if err != nil {
 			writeJSONRPCError(req.ID, "Chat error", err.Error())
 			return
@@ -101,7 +102,7 @@ func handleJSONRPC(client *openai.Client, line string) {
 	}
 }
 
-func handleLineDelimited(client *openai.Client, line string) {
+func handleLineDelimited(line string) {
 	var chatReq ChatRequest
 	if err := json.Unmarshal([]byte(line), &chatReq); err != nil {
 		writeLine(ChatResponse{Error: "Invalid request: " + err.Error()})
@@ -109,7 +110,7 @@ func handleLineDelimited(client *openai.Client, line string) {
 	}
 
 	if chatReq.Stream {
-		if err := streamChat(client, chatReq.Messages, func(content string) {
+		if err := streamChat(chatReq.Messages, func(content string) {
 			writeLine(ChatResponse{Content: content})
 		}); err != nil {
 			writeLine(ChatResponse{Error: err.Error()})
@@ -117,7 +118,7 @@ func handleLineDelimited(client *openai.Client, line string) {
 		}
 		writeLine(ChatResponse{Done: true})
 	} else {
-		result, err := completeChat(client, chatReq.Messages)
+		result, err := completeChat(chatReq.Messages)
 		if err != nil {
 			writeLine(ChatResponse{Error: err.Error()})
 			return
@@ -126,65 +127,29 @@ func handleLineDelimited(client *openai.Client, line string) {
 	}
 }
 
-func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, onChunk func(string)) error {
+func streamChat(messages []openai.ChatCompletionMessage, onChunk func(string)) error {
 	ctx := context.Background()
-	content, toolCalls, err := chat(ctx, client, messages, "")
-	if err != nil {
-		return err
+	opts := engine.ChatOptions{
+		OnContent: func(text string) {
+			onChunk(text)
+		},
 	}
-
-	if content != "" {
-		onChunk(content)
-	}
-
-	for len(toolCalls) > 0 {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:      openai.ChatMessageRoleAssistant,
-			ToolCalls: toolCalls,
-		})
-
-		messages = append(messages, executeToolsConcurrently(ctx, toolCalls)...)
-
-		content, toolCalls, err = chat(ctx, client, messages, "")
-		if err != nil {
-			return err
-		}
-
-		if content != "" {
-			onChunk(content)
-		}
-	}
-
-	return nil
+	_, _, err := eng.Chat(ctx, messages, opts)
+	return err
 }
 
-func completeChat(client *openai.Client, messages []openai.ChatCompletionMessage) (string, error) {
+func completeChat(messages []openai.ChatCompletionMessage) (string, error) {
 	ctx := context.Background()
 	var fullContent strings.Builder
-
-	content, toolCalls, err := chat(ctx, client, messages, "")
+	opts := engine.ChatOptions{
+		OnContent: func(text string) {
+			fullContent.WriteString(text)
+		},
+	}
+	_, _, err := eng.Chat(ctx, messages, opts)
 	if err != nil {
 		return "", err
 	}
-
-	fullContent.WriteString(content)
-
-	for len(toolCalls) > 0 {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:      openai.ChatMessageRoleAssistant,
-			ToolCalls: toolCalls,
-		})
-
-		messages = append(messages, executeToolsConcurrently(ctx, toolCalls)...)
-
-		content, toolCalls, err = chat(ctx, client, messages, "")
-		if err != nil {
-			return "", err
-		}
-
-		fullContent.WriteString(content)
-	}
-
 	return fullContent.String(), nil
 }
 

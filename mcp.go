@@ -73,7 +73,7 @@ func loadMCPConfig(configDir string) error {
 		for _, tool := range result.Tools {
 			toolName := tool.Name
 			sess := session
-			registerTool(
+			eng.RegisterTool(
 				toolName,
 				tool.Description,
 				marshalSchema(tool.InputSchema),

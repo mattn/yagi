@@ -5,7 +5,6 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -20,21 +19,15 @@ import (
 
 	"github.com/mattn/go-colorable"
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/yagi-agent/yagi/engine"
 )
 
 //go:embed models.txt
 var modelsTxt string
 
-type toolMetadata struct {
-	safe bool
-}
-
 var (
 	selectedProvider *Provider
 	model            string
-	tools            []openai.Tool
-	toolFuncs        = map[string]func(context.Context, string) (string, error){}
-	toolMeta         = map[string]toolMetadata{}
 	quiet            bool
 	verbose          bool
 
@@ -42,239 +35,11 @@ var (
 	chatCancel context.CancelFunc
 	stderr     = colorable.NewColorableStderr()
 
-	// Run modes for autonomous and planning capabilities
 	autonomousMode bool
 	planningMode   bool
+
+	eng *engine.Engine
 )
-
-func registerTool(name, description string, parameters json.RawMessage, fn func(context.Context, string) (string, error), safe bool) {
-	var params openai.FunctionDefinition
-	params.Name = name
-	params.Description = description
-	params.Parameters = parameters
-
-	tools = append(tools, openai.Tool{
-		Type:     openai.ToolTypeFunction,
-		Function: &params,
-	})
-	toolFuncs[name] = fn
-	toolMeta[name] = toolMetadata{safe: safe}
-}
-
-var toolAlternatives = map[string][]string{
-	"web_search":   {"fetch_url"},
-	"fetch_url":    {"web_search"},
-	"read_file":    {"list_files", "glob", "search_files"},
-	"edit_file":    {"write_file", "read_file"},
-	"write_file":   {"edit_file"},
-	"delete_file":  {"list_files"},
-	"list_files":   {"glob", "search_files"},
-	"glob":         {"list_files", "search_files"},
-	"search_files": {"glob", "read_file"},
-	"run_command":  {"read_file", "write_file"},
-}
-
-func suggestAlternatives(name string) string {
-	alts, ok := toolAlternatives[name]
-	if !ok {
-		return ""
-	}
-	var available []string
-	for _, alt := range alts {
-		if _, exists := toolFuncs[alt]; exists {
-			available = append(available, alt)
-		}
-	}
-	if len(available) == 0 {
-		return ""
-	}
-	return fmt.Sprintf(" (alternatives: %s)", strings.Join(available, ", "))
-}
-
-func executeTool(ctx context.Context, name, arguments string) string {
-	if fn, ok := toolFuncs[name]; ok {
-		meta, isMeta := toolMeta[name]
-		if !skipApproval && isMeta && !meta.safe && pluginApprovals != nil {
-			if !isPluginApproved(pluginApprovals, pluginWorkDir, name) {
-				if !requestApproval(name, pluginWorkDir, arguments) {
-					return "Error: Plugin not approved by user"
-				}
-				addPluginApproval(pluginApprovals, pluginWorkDir, name)
-				if err := saveApprovalRecords(pluginConfigDir, pluginApprovals); err != nil {
-					fmt.Fprintf(os.Stderr, "Warning: failed to save approval: %v\n", err)
-				}
-			}
-		}
-		result, err := fn(ctx, arguments)
-		if err != nil {
-			return fmt.Sprintf("Error: %v%s", err, suggestAlternatives(name))
-		}
-		return result
-	}
-	return fmt.Sprintf("Unknown tool: %s", name)
-}
-
-type toolResult struct {
-	id     string
-	output string
-}
-
-func executeToolsConcurrently(ctx context.Context, toolCalls []openai.ToolCall) []openai.ChatCompletionMessage {
-	results := make([]toolResult, len(toolCalls))
-	var wg sync.WaitGroup
-	for i, tc := range toolCalls {
-		wg.Add(1)
-		go func(i int, tc openai.ToolCall) {
-			defer wg.Done()
-			results[i] = toolResult{
-				id:     tc.ID,
-				output: executeTool(ctx, tc.Function.Name, tc.Function.Arguments),
-			}
-		}(i, tc)
-	}
-	wg.Wait()
-
-	msgs := make([]openai.ChatCompletionMessage, len(results))
-	for i, r := range results {
-		msgs[i] = openai.ChatCompletionMessage{
-			Role:       openai.ChatMessageRoleTool,
-			Content:    r.output,
-			ToolCallID: r.id,
-		}
-	}
-	return msgs
-}
-
-func processStreamResponse(stream *openai.ChatCompletionStream) (string, []openai.ToolCall, error) {
-	var fullContent strings.Builder
-	toolCallsMap := make(map[int]*openai.ToolCall)
-	var finishReason openai.FinishReason
-	inThinking := false
-
-	for {
-		resp, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			return "", nil, err
-		}
-
-		if len(resp.Choices) == 0 {
-			continue
-		}
-
-		choice := resp.Choices[0]
-		finishReason = choice.FinishReason
-
-		if reasoning := choice.Delta.ReasoningContent; reasoning != "" && !quiet {
-			if !inThinking {
-				fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking]\x1b[0m ")
-				inThinking = true
-			}
-		}
-
-		if content := choice.Delta.Content; content != "" {
-			if inThinking {
-				fmt.Fprint(stderr, "\x1b[2K\r")
-				inThinking = false
-			}
-			if !quiet {
-				fmt.Print(content)
-			}
-			fullContent.WriteString(content)
-		}
-
-		for _, tc := range choice.Delta.ToolCalls {
-			idx := 0
-			if tc.Index != nil {
-				idx = *tc.Index
-			}
-			existing, ok := toolCallsMap[idx]
-			if !ok {
-				existing = &openai.ToolCall{
-					ID:   tc.ID,
-					Type: tc.Type,
-				}
-				existing.Function.Name = tc.Function.Name
-				toolCallsMap[idx] = existing
-			} else {
-				if tc.ID != "" {
-					existing.ID = tc.ID
-				}
-				if tc.Function.Name != "" {
-					existing.Function.Name += tc.Function.Name
-				}
-			}
-			existing.Function.Arguments += tc.Function.Arguments
-		}
-	}
-
-	var toolCalls []openai.ToolCall
-	if finishReason == openai.FinishReasonToolCalls && len(toolCallsMap) > 0 {
-		toolCalls = make([]openai.ToolCall, 0, len(toolCallsMap))
-		for i := 0; i < len(toolCallsMap); i++ {
-			if tc, ok := toolCallsMap[i]; ok {
-				toolCalls = append(toolCalls, *tc)
-			}
-		}
-	}
-
-	return fullContent.String(), toolCalls, nil
-}
-
-const maxRetries = 3
-
-func chat(ctx context.Context, client *openai.Client, messages []openai.ChatCompletionMessage, skill string) (string, []openai.ToolCall, error) {
-	systemMsg := getSystemMessage(skill)
-	if systemMsg != "" && (len(messages) == 0 || messages[0].Role != openai.ChatMessageRoleSystem) {
-		systemMsgObj := openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleSystem,
-			Content: systemMsg,
-		}
-		messages = append([]openai.ChatCompletionMessage{systemMsgObj}, messages...)
-	}
-
-	var lastErr error
-	for attempt := 0; attempt <= maxRetries; attempt++ {
-		if attempt > 0 {
-			if ctx.Err() != nil {
-				return "", nil, lastErr
-			}
-			wait := time.Duration(1<<uint(attempt-1)) * time.Second
-			if !quiet {
-				fmt.Fprintf(stderr, "\x1b[33m[retry %d/%d in %v]\x1b[0m\n", attempt, maxRetries, wait)
-			}
-			select {
-			case <-time.After(wait):
-			case <-ctx.Done():
-				return "", nil, lastErr
-			}
-		}
-
-		stream, err := client.CreateChatCompletionStream(
-			ctx,
-			openai.ChatCompletionRequest{
-				Model:    model,
-				Messages: messages,
-				Tools:    tools,
-			},
-		)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		content, toolCalls, err := processStreamResponse(stream)
-		stream.Close()
-		if err != nil {
-			lastErr = err
-			continue
-		}
-		return content, toolCalls, nil
-	}
-	return "", nil, lastErr
-}
 
 const name = "yagi"
 
@@ -283,7 +48,7 @@ const version = "0.0.32"
 var revision = "HEAD"
 
 func setupBuiltInTools() {
-	registerTool("get_yagi_info", "Get information about yagi", json.RawMessage(`{
+	eng.RegisterTool("get_yagi_info", "Get information about yagi", json.RawMessage(`{
 		"type": "object",
 		"properties": {
 			"info_type": {
@@ -305,15 +70,15 @@ func setupBuiltInTools() {
 			return fmt.Sprintf("yagi version %s (revision: %s/%s)", version, revision, runtime.Version()), nil
 		case "model":
 			if selectedProvider != nil {
-				return fmt.Sprintf("%s/%s", selectedProvider.Name, model), nil
+				return fmt.Sprintf("%s/%s", selectedProvider.Name, eng.Model()), nil
 			}
-			return model, nil
+			return eng.Model(), nil
 		default:
 			return "", fmt.Errorf("unknown info_type: %s", req.InfoType)
 		}
 	}, true)
 
-	registerTool("saveMemoryEntry", "Save information to memory. Use this when user wants to remember something.", json.RawMessage(`{
+	eng.RegisterTool("saveMemoryEntry", "Save information to memory. Use this when user wants to remember something.", json.RawMessage(`{
 		"type": "object",
 		"properties": {
 			"key": {
@@ -337,7 +102,7 @@ func setupBuiltInTools() {
 		return saveMemoryEntry(ctx, req.Key, req.Value)
 	}, true)
 
-	registerTool("getMemoryEntry", "Retrieve information from memory.", json.RawMessage(`{
+	eng.RegisterTool("getMemoryEntry", "Retrieve information from memory.", json.RawMessage(`{
 		"type": "object",
 		"properties": {
 			"key": {
@@ -356,7 +121,7 @@ func setupBuiltInTools() {
 		return getMemoryEntry(ctx, req.Key)
 	}, true)
 
-	registerTool("deleteMemoryEntry", "Delete information from memory.", json.RawMessage(`{
+	eng.RegisterTool("deleteMemoryEntry", "Delete information from memory.", json.RawMessage(`{
 		"type": "object",
 		"properties": {
 			"key": {
@@ -375,7 +140,7 @@ func setupBuiltInTools() {
 		return deleteMemoryEntry(ctx, req.Key)
 	}, true)
 
-	registerTool("listMemoryEntries", "List all saved information.", json.RawMessage(`{
+	eng.RegisterTool("listMemoryEntries", "List all saved information.", json.RawMessage(`{
 		"type": "object",
 		"properties": {}
 	}`), func(ctx context.Context, args string) (string, error) {
@@ -475,7 +240,10 @@ func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
 
 	config := openai.DefaultConfig(apiKey)
 	config.BaseURL = selectedProvider.APIURL
-	return openai.NewClientWithConfig(config)
+	client := openai.NewClientWithConfig(config)
+	eng.SetClient(client)
+	eng.SetModel(model)
+	return client
 }
 
 func readOneshotInput() string {
@@ -588,7 +356,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 
 		// Planning mode: ask AI to create a plan first
 		if planningMode {
-			plan, err := generatePlan(client, input, skillFlag)
+			plan, err := generatePlan(input, skillFlag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error generating plan: %v\n", err)
 				continue
@@ -616,7 +384,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 			Content: input,
 		})
 
-		runChat(client, &messages, skillFlag)
+		runChat(&messages, skillFlag)
 		fmt.Println()
 
 		if configDir != "" && workDir != "" {
@@ -633,7 +401,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 	}
 }
 
-func generatePlan(client *openai.Client, userInput, skill string) (string, error) {
+func generatePlan(userInput, skill string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
@@ -662,12 +430,12 @@ Format your response as:
 		Content: planPrompt,
 	})
 
-	stream, err := client.CreateChatCompletionStream(
+	stream, err := eng.Client().CreateChatCompletionStream(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model:    model,
+			Model:    eng.Model(),
 			Messages: messages,
-			Tools:    tools,
+			Tools:    eng.Tools(),
 		},
 	)
 	if err != nil {
@@ -762,7 +530,10 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		}
 		config := openai.DefaultConfig(apiKey)
 		config.BaseURL = selectedProvider.APIURL
-		*client = openai.NewClientWithConfig(config)
+		newClient := openai.NewClientWithConfig(config)
+		*client = newClient
+		eng.SetClient(newClient)
+		eng.SetModel(model)
 		fmt.Printf("Model changed to: %s/%s\n", selectedProvider.Name, model)
 	case "/clear":
 		*messages = nil
@@ -914,6 +685,12 @@ func main() {
 	configDir := loadConfigurations()
 	defer closeMCPConnections()
 
+	eng = engine.New(engine.Config{
+		SystemMessage: func(skill string) string {
+			return getSystemMessage(skill)
+		},
+	})
+
 	setupBuiltInTools()
 
 	if f.listFlag {
@@ -924,7 +701,7 @@ func main() {
 	client := setupProvider(f.modelFlag, f.apiKeyFlag)
 
 	if f.stdioMode {
-		if err := runSTDIOMode(client); err != nil {
+		if err := runSTDIOMode(); err != nil {
 			fmt.Fprintf(os.Stderr, "STDIO error: %v\n", err)
 			os.Exit(1)
 		}
@@ -939,7 +716,7 @@ func main() {
 				Content: oneshot,
 			},
 		}
-		runChat(client, &messages, f.skillFlag)
+		runChat(&messages, f.skillFlag)
 		fmt.Println()
 		return
 	}
@@ -947,7 +724,7 @@ func main() {
 	runInteractiveLoop(client, f.skillFlag, configDir, f.resumeFlag)
 }
 
-func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, skill string) {
+func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	chatMu.Lock()
 	chatCancel = cancel
@@ -959,62 +736,57 @@ func runChat(client *openai.Client, messages *[]openai.ChatCompletionMessage, sk
 		cancel()
 	}()
 
-	const maxAutonomousIterations = 20
-	iteration := 0
-
-	for {
-		iteration++
-		if autonomousMode && iteration > maxAutonomousIterations {
+	inThinking := false
+	opts := engine.ChatOptions{
+		Skill:      skill,
+		Autonomous: autonomousMode,
+		OnContent: func(text string) {
 			if !quiet {
-				fmt.Fprintf(stderr, "\n\x1b[33m[Reached maximum autonomous iterations (%d)]\x1b[0m\n", maxAutonomousIterations)
-			}
-			break
-		}
-
-		*messages = compressContext(ctx, client, *messages)
-		content, toolCalls, err := chat(ctx, client, *messages, skill)
-		if err != nil {
-			if ctx.Err() != nil {
-				if !quiet {
-					fmt.Fprintf(os.Stderr, "\n[interrupted]\n")
+				if inThinking {
+					fmt.Fprint(stderr, "\x1b[2K\r")
+					inThinking = false
 				}
-				break
+				fmt.Print(text)
 			}
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			break
-		}
-
-		if len(toolCalls) > 0 {
-			*messages = append(*messages, openai.ChatCompletionMessage{
-				Role:      openai.ChatMessageRoleAssistant,
-				ToolCalls: toolCalls,
-			})
-
+		},
+		OnReasoning: func(text string) {
+			if !quiet && !inThinking {
+				fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking]\x1b[0m ")
+				inThinking = true
+			}
+		},
+		OnToolCall: func(name, arguments string) {
 			if !quiet {
-				for _, tc := range toolCalls {
-					if autonomousMode {
-						fmt.Fprintf(stderr, "\n\x1b[36m[autonomous step %d] tool: %s(%s)\x1b[0m\n", iteration, tc.Function.Name, tc.Function.Arguments)
-					} else {
-						fmt.Fprintf(stderr, "\n\x1b[36m[tool: %s(%s)]\x1b[0m\n", tc.Function.Name, tc.Function.Arguments)
-					}
+				if autonomousMode {
+					fmt.Fprintf(stderr, "\n\x1b[36m[autonomous] tool: %s(%s)\x1b[0m\n", name, arguments)
+				} else {
+					fmt.Fprintf(stderr, "\n\x1b[36m[tool: %s(%s)]\x1b[0m\n", name, arguments)
 				}
 			}
-			toolMsgs := executeToolsConcurrently(ctx, toolCalls)
-			for _, msg := range toolMsgs {
-				if !quiet && (strings.HasPrefix(msg.Content, "Error: ") || strings.HasPrefix(msg.Content, "Unknown tool: ")) {
-					fmt.Fprintf(stderr, "\x1b[31m[tool error: %s]\x1b[0m\n", msg.Content)
-				}
+		},
+		OnToolError: func(name, errMsg string) {
+			if !quiet {
+				fmt.Fprintf(stderr, "\x1b[31m[tool error: %s]\x1b[0m\n", errMsg)
 			}
-			*messages = append(*messages, toolMsgs...)
-			continue
-		}
-
-		*messages = append(*messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleAssistant,
-			Content: content,
-		})
-		break
+		},
+		OnCompressed: func(oldChars int) {
+			if !quiet {
+				fmt.Fprintf(stderr, "\x1b[33m[context compressed: %d chars → summarized]\x1b[0m\n", oldChars)
+			}
+		},
 	}
+
+	_, updatedMsgs, err := eng.Chat(ctx, *messages, opts)
+	if err != nil {
+		if ctx.Err() != nil {
+			if !quiet {
+				fmt.Fprintf(os.Stderr, "\n[interrupted]\n")
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		}
+	}
+	*messages = updatedMsgs
 }
 
 func listModels(args []string) {
