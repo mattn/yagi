@@ -1,17 +1,24 @@
 package main
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	openai "github.com/sashabaranov/go-openai"
 )
 
 const maxSessionMessages = 100
+
+const maxContextChars = 100000
+
+const compressThreshold = 80000
 
 type sessionData struct {
 	Dir       string                         `json:"dir"`
@@ -95,4 +102,140 @@ func clearSession(configDir, workDir string) error {
 		return nil
 	}
 	return err
+}
+
+func estimateChars(msgs []openai.ChatCompletionMessage) int {
+	total := 0
+	for _, m := range msgs {
+		total += utf8.RuneCountInString(m.Content)
+		for _, tc := range m.ToolCalls {
+			total += utf8.RuneCountInString(tc.Function.Arguments)
+		}
+	}
+	return total
+}
+
+func compressContext(ctx context.Context, client *openai.Client, messages []openai.ChatCompletionMessage) []openai.ChatCompletionMessage {
+	chars := estimateChars(messages)
+	if chars < compressThreshold {
+		return messages
+	}
+
+	start := 0
+	for i, m := range messages {
+		if m.Role == openai.ChatMessageRoleSystem {
+			start = i + 1
+			break
+		}
+	}
+	if start >= len(messages) {
+		return messages
+	}
+
+	end := start
+	kept := estimateChars(messages[start:])
+	for end < len(messages)-2 && kept > maxContextChars/2 {
+		kept -= utf8.RuneCountInString(messages[end].Content)
+		for _, tc := range messages[end].ToolCalls {
+			kept -= utf8.RuneCountInString(tc.Function.Arguments)
+		}
+		end++
+	}
+
+	if end <= start {
+		return messages
+	}
+
+	for end < len(messages) && messages[end].Role != openai.ChatMessageRoleUser {
+		end++
+	}
+	if end >= len(messages) {
+		return messages
+	}
+
+	oldMsgs := messages[start:end]
+	summary := summarizeMessages(ctx, client, oldMsgs)
+	if summary == "" {
+		return messages
+	}
+
+	if !quiet {
+		fmt.Fprintf(stderr, "\x1b[33m[context compressed: %d chars → summarized]\x1b[0m\n", chars)
+	}
+
+	var result []openai.ChatCompletionMessage
+	result = append(result, messages[:start]...)
+	result = append(result, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: "[Previous conversation summary]\n" + summary,
+	})
+	result = append(result, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleAssistant,
+		Content: "Understood. I have the context from our previous conversation.",
+	})
+	result = append(result, messages[end:]...)
+	return result
+}
+
+func summarizeMessages(ctx context.Context, client *openai.Client, msgs []openai.ChatCompletionMessage) string {
+	var sb strings.Builder
+	for _, m := range msgs {
+		switch m.Role {
+		case openai.ChatMessageRoleUser:
+			sb.WriteString("User: ")
+			sb.WriteString(m.Content)
+			sb.WriteString("\n")
+		case openai.ChatMessageRoleAssistant:
+			sb.WriteString("Assistant: ")
+			if m.Content != "" {
+				sb.WriteString(m.Content)
+			}
+			for _, tc := range m.ToolCalls {
+				sb.WriteString("[tool: ")
+				sb.WriteString(tc.Function.Name)
+				sb.WriteString("]")
+			}
+			sb.WriteString("\n")
+		case openai.ChatMessageRoleTool:
+			content := m.Content
+			if len(content) > 500 {
+				content = content[:500] + "..."
+			}
+			sb.WriteString("Tool result: ")
+			sb.WriteString(content)
+			sb.WriteString("\n")
+		}
+	}
+
+	summaryMsgs := []openai.ChatCompletionMessage{
+		{
+			Role:    openai.ChatMessageRoleSystem,
+			Content: "Summarize the following conversation concisely. Preserve key decisions, file paths, code changes, and important context. Write in the same language as the conversation. Keep it under 500 characters.",
+		},
+		{
+			Role:    openai.ChatMessageRoleUser,
+			Content: sb.String(),
+		},
+	}
+
+	stream, err := client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
+		Model:    model,
+		Messages: summaryMsgs,
+	})
+	if err != nil {
+		return ""
+	}
+	defer stream.Close()
+
+	var result strings.Builder
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			break
+		}
+		if len(resp.Choices) > 0 {
+			result.WriteString(resp.Choices[0].Delta.Content)
+		}
+	}
+	return result.String()
 }

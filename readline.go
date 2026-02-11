@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 )
 
 var rl *readline.Instance
+var mux *inputMux
 
 func modelCompleter() []string {
 	var models []string
@@ -30,11 +32,15 @@ func initReadline(prompt, configDir string) error {
 		modelItems = append(modelItems, readline.PcItem(m))
 	}
 
+	mux = newInputMux(readline.Stdin)
+
 	cfg := &readline.Config{
-		Prompt:          prompt,
-		InterruptPrompt: "^C",
-		EOFPrompt:       "exit",
-		Stderr:          os.Stderr,
+		Prompt:                 prompt,
+		InterruptPrompt:        "^C",
+		EOFPrompt:              "exit",
+		Stderr:                 os.Stderr,
+		Stdin:                  mux,
+		DisableAutoSaveHistory: true,
 		AutoComplete: readline.NewPrefixCompleter(
 			readline.PcItem("/help"),
 			readline.PcItem("/model", modelItems...),
@@ -51,18 +57,48 @@ func initReadline(prompt, configDir string) error {
 	}
 	var err error
 	rl, err = readline.NewEx(cfg)
-	return err
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(os.Stderr, "\x1b[?2004h")
+	return nil
 }
 
 func closeReadline() {
 	if rl != nil {
+		fmt.Fprint(os.Stderr, "\x1b[?2004l")
 		rl.Close()
 	}
 }
 
 func readlineInput(prompt string) (string, error) {
+	var b strings.Builder
+	first := true
 	rl.SetPrompt(prompt)
-	return rl.Readline()
+
+	for {
+		line, err := rl.Readline()
+		if err != nil {
+			return "", err
+		}
+
+		if !first {
+			b.WriteByte('\n')
+		}
+		b.WriteString(line)
+		first = false
+
+		soft := mux.popEnterSoft()
+		if !soft {
+			full := b.String()
+			if strings.TrimSpace(full) != "" {
+				rl.SaveHistory(full)
+			}
+			return full, nil
+		}
+
+		rl.SetPrompt("... ")
+	}
 }
 
 func isInterrupt(err error) bool {
