@@ -682,14 +682,14 @@ func main() {
 		skipApproval = true
 	}
 
-	configDir := loadConfigurations()
-	defer closeMCPConnections()
-
 	eng = engine.New(engine.Config{
 		SystemMessage: func(skill string) string {
 			return getSystemMessage(skill)
 		},
 	})
+
+	configDir := loadConfigurations()
+	defer closeMCPConnections()
 
 	setupBuiltInTools()
 
