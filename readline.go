@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,13 +59,13 @@ func initReadline(prompt, configDir string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprint(os.Stderr, "\x1b[?2004h")
+	enableBracketPaste()
 	return nil
 }
 
 func closeReadline() {
 	if rl != nil {
-		fmt.Fprint(os.Stderr, "\x1b[?2004l")
+		disableBracketPaste()
 		rl.Close()
 	}
 }
@@ -103,4 +102,10 @@ func readlineInput(prompt string) (string, error) {
 
 func isInterrupt(err error) bool {
 	return err == readline.ErrInterrupt
+}
+
+func setReadlineBuffer(text string) {
+	if rl != nil {
+		rl.WriteStdin([]byte(text))
+	}
 }

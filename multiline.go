@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"sync"
+	"time"
 )
 
 type enterKind struct{ soft bool }
@@ -13,9 +14,10 @@ type inputMux struct {
 	buf     [1024]byte
 	pending []byte
 
-	mu      sync.Mutex
-	enters  []enterKind
-	inPaste bool
+	mu       sync.Mutex
+	enters   []enterKind
+	inPaste  bool
+	lastRead time.Time
 }
 
 func newInputMux(r io.ReadCloser) *inputMux {
@@ -49,6 +51,8 @@ var (
 	ctrlEnterCSIu     = []byte("\x1b[13;5u")
 )
 
+const pasteThreshold = 50 * time.Millisecond
+
 func (m *inputMux) Read(p []byte) (int, error) {
 	if len(m.pending) > 0 {
 		n := copy(p, m.pending)
@@ -60,6 +64,10 @@ func (m *inputMux) Read(p []byte) (int, error) {
 	if n == 0 {
 		return 0, err
 	}
+
+	now := time.Now()
+	rapidInput := !m.lastRead.IsZero() && now.Sub(m.lastRead) < pasteThreshold
+	m.lastRead = now
 
 	data := m.buf[:n]
 	var out bytes.Buffer
@@ -88,7 +96,7 @@ func (m *inputMux) Read(p []byte) (int, error) {
 			if data[0] == '\r' && len(data) > 1 && data[1] == '\n' {
 				data = data[1:]
 			}
-			if m.inPaste {
+			if m.inPaste || rapidInput {
 				m.pushEnter(true)
 			}
 			out.WriteByte('\r')
