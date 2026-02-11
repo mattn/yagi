@@ -143,14 +143,7 @@ func streamChat(client *openai.Client, messages []openai.ChatCompletionMessage, 
 			ToolCalls: toolCalls,
 		})
 
-		for _, tc := range toolCalls {
-			output := executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
-			messages = append(messages, openai.ChatCompletionMessage{
-				Role:       openai.ChatMessageRoleTool,
-				Content:    output,
-				ToolCallID: tc.ID,
-			})
-		}
+		messages = append(messages, executeToolsConcurrently(ctx, toolCalls)...)
 
 		content, toolCalls, err = chat(ctx, client, messages, "")
 		if err != nil {
@@ -182,14 +175,7 @@ func completeChat(client *openai.Client, messages []openai.ChatCompletionMessage
 			ToolCalls: toolCalls,
 		})
 
-		for _, tc := range toolCalls {
-			output := executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
-			messages = append(messages, openai.ChatCompletionMessage{
-				Role:       openai.ChatMessageRoleTool,
-				Content:    output,
-				ToolCallID: tc.ID,
-			})
-		}
+		messages = append(messages, executeToolsConcurrently(ctx, toolCalls)...)
 
 		content, toolCalls, err = chat(ctx, client, messages, "")
 		if err != nil {

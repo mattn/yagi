@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -233,6 +234,54 @@ func TestTruncateMessagesNoOp(t *testing.T) {
 	result := truncateMessages(msgs, 10)
 	if len(result) != 2 {
 		t.Fatalf("got %d messages, want 2", len(result))
+	}
+}
+
+func TestEstimateChars(t *testing.T) {
+	msgs := []openai.ChatCompletionMessage{
+		{Role: openai.ChatMessageRoleUser, Content: "hello"},
+		{Role: openai.ChatMessageRoleAssistant, Content: "world"},
+	}
+	got := estimateChars(msgs)
+	if got != 10 {
+		t.Errorf("estimateChars: got %d, want 10", got)
+	}
+}
+
+func TestEstimateCharsWithToolCalls(t *testing.T) {
+	msgs := []openai.ChatCompletionMessage{
+		{
+			Role: openai.ChatMessageRoleAssistant,
+			ToolCalls: []openai.ToolCall{
+				{Function: openai.FunctionCall{Arguments: `{"path":"."}`}},
+			},
+		},
+	}
+	got := estimateChars(msgs)
+	if got != 12 {
+		t.Errorf("estimateChars: got %d, want 12", got)
+	}
+}
+
+func TestEstimateCharsJapanese(t *testing.T) {
+	msgs := []openai.ChatCompletionMessage{
+		{Role: openai.ChatMessageRoleUser, Content: "こんにちは"},
+	}
+	got := estimateChars(msgs)
+	if got != 5 {
+		t.Errorf("estimateChars: got %d, want 5", got)
+	}
+}
+
+func TestCompressContextBelowThreshold(t *testing.T) {
+	msgs := []openai.ChatCompletionMessage{
+		{Role: openai.ChatMessageRoleSystem, Content: "system"},
+		{Role: openai.ChatMessageRoleUser, Content: "hello"},
+		{Role: openai.ChatMessageRoleAssistant, Content: "hi"},
+	}
+	result := compressContext(context.Background(), nil, msgs)
+	if len(result) != len(msgs) {
+		t.Errorf("should not compress: got %d msgs, want %d", len(result), len(msgs))
 	}
 }
 
