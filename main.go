@@ -582,7 +582,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		}
 
 		if strings.HasPrefix(input, "/") {
-			handleSlashCommand(input, &client, configDir, &messages)
+			handleSlashCommand(input, &client, configDir, &messages, skillFlag)
 			continue
 		}
 
@@ -692,7 +692,7 @@ Format your response as:
 	return plan.String(), nil
 }
 
-func handleSlashCommand(input string, client **openai.Client, configDir string, messages *[]openai.ChatCompletionMessage) {
+func handleSlashCommand(input string, client **openai.Client, configDir string, messages *[]openai.ChatCompletionMessage, skill string) {
 	var prevProvider *Provider
 	var prevModel string
 	if selectedProvider != nil {
@@ -718,6 +718,7 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		fmt.Println("  /agent [on|off] - Toggle autonomous mode (auto-execute tools without approval)")
 		fmt.Println("  /plan [on|off]  - Toggle planning mode (show execution plan before acting)")
 		fmt.Println("  /mode           - Show current mode settings")
+		fmt.Println("  /edit           - Open $EDITOR to compose a message")
 		fmt.Println("  /clear          - Clear conversation history")
 		fmt.Println("  /revoke [name]  - Revoke plugin approval (use 'all' to revoke all)")
 		fmt.Println("  /exit           - Exit yagi")
@@ -878,6 +879,22 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		} else {
 			fmt.Println("  Planning mode:   OFF")
 		}
+	case "/edit":
+		text, err := openEditor(args)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			return
+		}
+		text = strings.TrimSpace(text)
+		if text == "" {
+			fmt.Println("No input provided.")
+			return
+		}
+		if text == strings.TrimSpace(args) {
+			fmt.Println("No changes made.")
+			return
+		}
+		setReadlineBuffer(text)
 	}
 }
 
