@@ -750,9 +750,12 @@ func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 			}
 		},
 		OnReasoning: func(text string) {
-			if !quiet && !inThinking {
-				fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking]\x1b[0m ")
-				inThinking = true
+			if !quiet {
+				if !inThinking {
+					fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking] \x1b[0m")
+					inThinking = true
+				}
+				fmt.Fprint(stderr, "\x1b[2m"+text+"\x1b[0m")
 			}
 		},
 		OnToolCall: func(name, arguments string) {
