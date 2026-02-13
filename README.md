@@ -202,6 +202,11 @@ Sessions are stored in `~/.config/yagi/sessions/` and are keyed by directory pat
 
 ## Configuration
 
+### Project-specific Configuration
+
+Yagi uses `~/.config/yagi/` as the default configuration directory.
+However, if a `.yagi/` directory exists in the current working directory, it will be used instead. This allows for project-specific configurations.
+
 ### Identity/Persona Customization
 
 You can customize the AI's behavior by specifying a custom identity file. The identity file path can be configured in three ways (in order of priority):

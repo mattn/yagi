@@ -181,7 +181,14 @@ func parseFlags() parsedFlags {
 	return f
 }
 
-func loadConfigurations() string {
+func resolveConfigDir() string {
+	if cwd, err := os.Getwd(); err == nil {
+		localConfig := filepath.Join(cwd, ".yagi")
+		if info, err := os.Stat(localConfig); err == nil && info.IsDir() {
+			return localConfig
+		}
+	}
+
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		u, err := user.Current()
@@ -190,7 +197,11 @@ func loadConfigurations() string {
 		}
 		configDir = filepath.Join(u.HomeDir, ".config")
 	}
-	configDir = filepath.Join(configDir, "yagi")
+	return filepath.Join(configDir, "yagi")
+}
+
+func loadConfigurations() string {
+	configDir := resolveConfigDir()
 	if err := loadConfig(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load config: %v\n", err)
 	}
