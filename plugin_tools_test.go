@@ -117,8 +117,8 @@ func TestPluginRunCommand(t *testing.T) {
 
 	args, _ := json.Marshal(map[string]string{"command": "echo hello"})
 	got := eng.ExecuteTool(context.Background(), "run_command", string(args))
-	if got != "hello" {
-		t.Errorf("run_command echo: got %q, want %q", got, "hello")
+	if !strings.Contains(got, `"status":"success"`) || !strings.Contains(got, `"output":"hello"`) {
+		t.Errorf("run_command echo: got %q", got)
 	}
 }
 
@@ -138,8 +138,8 @@ func TestPluginRunCommand_Failure(t *testing.T) {
 
 	args, _ := json.Marshal(map[string]string{"command": "false"})
 	got := eng.ExecuteTool(context.Background(), "run_command", string(args))
-	if !strings.Contains(got, "Error:") {
-		t.Errorf("run_command false: expected error, got %q", got)
+	if !strings.Contains(got, `"status":"failure"`) || !strings.Contains(got, `"exit_code":1`) {
+		t.Errorf("run_command false: got %q", got)
 	}
 }
 

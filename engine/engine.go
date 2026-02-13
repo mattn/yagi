@@ -160,7 +160,8 @@ func (e *Engine) HasTool(name string) bool {
 }
 
 func (e *Engine) ExecuteTool(ctx context.Context, name, arguments string) string {
-	return e.executeTool(ctx, name, arguments)
+	result, _ := e.executeTool(ctx, name, arguments)
+	return result
 }
 
 func (e *Engine) suggestAlternatives(name string) string {
@@ -180,45 +181,48 @@ func (e *Engine) suggestAlternatives(name string) string {
 	return fmt.Sprintf(" (alternatives: %s)", strings.Join(available, ", "))
 }
 
-func (e *Engine) executeTool(ctx context.Context, name, arguments string) string {
+func (e *Engine) executeTool(ctx context.Context, name, arguments string) (string, bool) {
 	fn, ok := e.toolFuncs[name]
 	if !ok {
-		return fmt.Sprintf("Unknown tool: %s", name)
+		return fmt.Sprintf("Unknown tool: %s", name), true
 	}
 
 	meta := e.toolMeta[name]
 	if !meta.safe && e.approver != nil {
 		approved, err := e.approver.Approve(ctx, name, arguments)
 		if err != nil {
-			return fmt.Sprintf("Error: approval failed: %v", err)
+			return fmt.Sprintf("Error: approval failed: %v", err), true
 		}
 		if !approved {
-			return "Error: Tool not approved by user"
+			return "Error: Tool not approved by user", true
 		}
 	}
 
 	result, err := fn(ctx, arguments)
 	if err != nil {
-		return fmt.Sprintf("Error: %v%s", err, e.suggestAlternatives(name))
+		return fmt.Sprintf("Error: %v%s", err, e.suggestAlternatives(name)), true
 	}
-	return result
+	return result, false
 }
 
 type toolResult struct {
-	id     string
-	output string
+	id      string
+	output  string
+	isError bool
 }
 
-func (e *Engine) executeToolsConcurrently(ctx context.Context, toolCalls []openai.ToolCall) []openai.ChatCompletionMessage {
+func (e *Engine) executeToolsConcurrently(ctx context.Context, toolCalls []openai.ToolCall) ([]openai.ChatCompletionMessage, []toolResult) {
 	results := make([]toolResult, len(toolCalls))
 	var wg sync.WaitGroup
 	for i, tc := range toolCalls {
 		wg.Add(1)
 		go func(i int, tc openai.ToolCall) {
 			defer wg.Done()
+			output, isErr := e.executeTool(ctx, tc.Function.Name, tc.Function.Arguments)
 			results[i] = toolResult{
-				id:     tc.ID,
-				output: e.executeTool(ctx, tc.Function.Name, tc.Function.Arguments),
+				id:      tc.ID,
+				output:  output,
+				isError: isErr,
 			}
 		}(i, tc)
 	}
@@ -232,7 +236,7 @@ func (e *Engine) executeToolsConcurrently(ctx context.Context, toolCalls []opena
 			ToolCallID: r.id,
 		}
 	}
-	return msgs
+	return msgs, results
 }
 
 func (e *Engine) processStreamResponse(stream *openai.ChatCompletionStream, opts ChatOptions) (string, []openai.ToolCall, error) {
@@ -393,9 +397,9 @@ func (e *Engine) Chat(ctx context.Context, messages []openai.ChatCompletionMessa
 				}
 			}
 
-			toolMsgs := e.executeToolsConcurrently(ctx, toolCalls)
-			for _, msg := range toolMsgs {
-				if opts.OnToolError != nil && (strings.HasPrefix(msg.Content, "Error: ") || strings.HasPrefix(msg.Content, "Unknown tool: ")) {
+			toolMsgs, toolResults := e.executeToolsConcurrently(ctx, toolCalls)
+			for i, msg := range toolMsgs {
+				if opts.OnToolError != nil && toolResults[i].isError {
 					opts.OnToolError(msg.ToolCallID, msg.Content)
 				}
 			}
