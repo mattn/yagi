@@ -30,6 +30,7 @@ var (
 	model            string
 	quiet            bool
 	verbose          bool
+	oneshotMode      bool
 
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
@@ -247,18 +248,21 @@ func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
 }
 
 func readOneshotInput() string {
-	if args := flag.Args(); len(args) > 0 {
-		return strings.Join(args, " ")
-	}
+	var parts []string
 	if fi, _ := os.Stdin.Stat(); fi.Mode()&os.ModeCharDevice == 0 {
 		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
 			os.Exit(1)
 		}
-		return strings.TrimSpace(string(b))
+		if s := strings.TrimSpace(string(b)); s != "" {
+			parts = append(parts, s)
+		}
 	}
-	return ""
+	if args := flag.Args(); len(args) > 0 {
+		parts = append(parts, strings.Join(args, " "))
+	}
+	return strings.Join(parts, "\n")
 }
 
 func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resume bool) {
@@ -716,7 +720,9 @@ func main() {
 				Content: oneshot,
 			},
 		}
+		oneshotMode = true
 		runChat(&messages, f.skillFlag)
+		oneshotMode = false
 		fmt.Println()
 		return
 	}
@@ -737,16 +743,20 @@ func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 	}()
 
 	inThinking := false
+	var tb tableBuffer
 	opts := engine.ChatOptions{
 		Skill:      skill,
 		Autonomous: autonomousMode,
 		OnContent: func(text string) {
-			if !quiet {
+			if !quiet || oneshotMode {
 				if inThinking {
 					fmt.Fprint(stderr, "\x1b[2K\r")
 					inThinking = false
 				}
-				fmt.Print(text)
+				verbatim := tb.processChunk(text)
+				if verbatim != "" {
+					fmt.Print(verbatim)
+				}
 			}
 		},
 		OnReasoning: func(text string) {
@@ -787,6 +797,11 @@ func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		}
+	}
+	if !quiet {
+		if rest := tb.flush(); rest != "" {
+			fmt.Print(rest)
 		}
 	}
 	*messages = updatedMsgs

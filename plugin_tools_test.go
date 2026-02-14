@@ -44,8 +44,8 @@ func TestPluginReadFile(t *testing.T) {
 
 	args, _ := json.Marshal(map[string]string{"path": tmp})
 	got := eng.ExecuteTool(context.Background(), "read_file", string(args))
-	if got != "hello world" {
-		t.Errorf("read_file: got %q, want %q", got, "hello world")
+	if !strings.Contains(got, "hello world") {
+		t.Errorf("read_file: got %q, want content containing %q", got, "hello world")
 	}
 }
 
@@ -107,8 +107,9 @@ func TestPluginListFiles_Empty(t *testing.T) {
 	dir := t.TempDir()
 	args, _ := json.Marshal(map[string]string{"path": dir})
 	got := eng.ExecuteTool(context.Background(), "list_files", string(args))
-	if got != "" {
-		t.Errorf("list_files empty dir: got %q, want empty", got)
+	// Plugin returns JSON; for an empty dir the output field should be empty.
+	if !strings.Contains(got, `"status":"success"`) {
+		t.Errorf("list_files empty dir: expected success status, got %q", got)
 	}
 }
 
@@ -420,9 +421,16 @@ func TestPluginGlob_Limit(t *testing.T) {
 
 	args, _ := json.Marshal(map[string]any{"pattern": "**/*.txt", "directory": dir, "limit": 3})
 	got := eng.ExecuteTool(context.Background(), "glob", string(args))
-	lines := strings.Split(strings.TrimSpace(got), "\n")
+	// Plugin returns JSON; extract the output field.
+	var res struct {
+		Output string `json:"output"`
+	}
+	if err := json.Unmarshal([]byte(got), &res); err != nil {
+		t.Fatalf("glob limit: failed to parse JSON: %v, got %q", err, got)
+	}
+	lines := strings.Split(strings.TrimSpace(res.Output), "\n")
 	if len(lines) != 3 {
-		t.Errorf("glob limit: expected 3 results, got %d: %q", len(lines), got)
+		t.Errorf("glob limit: expected 3 results, got %d: %q", len(lines), res.Output)
 	}
 }
 

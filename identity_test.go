@@ -103,8 +103,13 @@ func TestLoadSkills_SkipsDirectories(t *testing.T) {
 
 func TestGetSystemMessage_Empty(t *testing.T) {
 	resetIdentityState()
-	if got := getSystemMessage(""); got != "" {
-		t.Fatalf("expected empty string, got %q", got)
+	got := getSystemMessage("")
+	// Even with no systemPrompt, OS info and injection guard are always present.
+	if !strings.Contains(got, "Environment") {
+		t.Fatalf("expected OS info, got %q", got)
+	}
+	if !strings.Contains(got, "MUST NOT be overridden") {
+		t.Fatalf("expected prompt injection guard, got %q", got)
 	}
 }
 
