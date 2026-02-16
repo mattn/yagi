@@ -43,6 +43,7 @@ type ChatOptions struct {
 	OnContent    func(text string)
 	OnReasoning  func(text string)
 	OnToolCall   func(name, arguments string)
+	OnToolResult func(name, result string)
 	OnToolError  func(name, errMsg string)
 	OnCompressed func(oldChars int)
 }
@@ -401,6 +402,9 @@ func (e *Engine) Chat(ctx context.Context, messages []openai.ChatCompletionMessa
 			for i, msg := range toolMsgs {
 				if opts.OnToolError != nil && toolResults[i].isError {
 					opts.OnToolError(msg.ToolCallID, msg.Content)
+				}
+				if opts.OnToolResult != nil && !toolResults[i].isError {
+					opts.OnToolResult(toolCalls[i].Function.Name, msg.Content)
 				}
 			}
 			messages = append(messages, toolMsgs...)

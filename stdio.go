@@ -32,10 +32,16 @@ type ChatRequest struct {
 	Model    string                         `json:"model,omitempty"`
 }
 
+type ToolResultResponse struct {
+	Name   string `json:"name"`
+	Output string `json:"output"`
+}
+
 type ChatResponse struct {
-	Content string `json:"content,omitempty"`
-	Done    bool   `json:"done,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Content    string              `json:"content,omitempty"`
+	Done       bool                `json:"done,omitempty"`
+	Error      string              `json:"error,omitempty"`
+	ToolResult *ToolResultResponse `json:"tool_result,omitempty"`
 }
 
 func runSTDIOMode() error {
@@ -127,12 +133,18 @@ func handleLineDelimited(line string) {
 	}
 }
 
+func onToolResultSTDIO(name, result string) {
+	writeLine(ChatResponse{ToolResult: &ToolResultResponse{Name: name, Output: result}})
+}
+
 func streamChat(messages []openai.ChatCompletionMessage, onChunk func(string)) error {
 	ctx := context.Background()
 	opts := engine.ChatOptions{
 		OnContent: func(text string) {
 			onChunk(text)
 		},
+		OnToolResult: onToolResultSTDIO,
+		Autonomous:   true,
 	}
 	_, _, err := eng.Chat(ctx, messages, opts)
 	return err
@@ -145,6 +157,8 @@ func completeChat(messages []openai.ChatCompletionMessage) (string, error) {
 		OnContent: func(text string) {
 			fullContent.WriteString(text)
 		},
+		OnToolResult: onToolResultSTDIO,
+		Autonomous:   true,
 	}
 	_, _, err := eng.Chat(ctx, messages, opts)
 	if err != nil {

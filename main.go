@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/mattn/go-colorable"
 	openai "github.com/sashabaranov/go-openai"
@@ -345,7 +346,7 @@ func runInteractiveLoop(client *openai.Client, skillFlag, configDir string, resu
 		case input = <-inputCh:
 		}
 
-		input = strings.TrimSpace(input)
+		input = strings.TrimRightFunc(input, unicode.IsSpace)
 		if input == "" {
 			continue
 		}
@@ -684,6 +685,7 @@ func main() {
 	if f.stdioMode {
 		quiet = true
 		skipApproval = true
+		autonomousMode = true
 	}
 
 	eng = engine.New(engine.Config{
