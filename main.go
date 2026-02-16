@@ -26,7 +26,7 @@ import (
 var modelsJSON []byte
 
 type ModelInfo struct {
-	Name           string `json:"name"`
+	Name            string `json:"name"`
 	MaxContextChars int    `json:"maxContextChars,omitempty"`
 }
 
@@ -66,7 +66,7 @@ var (
 
 const name = "yagi"
 
-const version = "0.0.42"
+const version = "0.0.43"
 
 var revision = "HEAD"
 
