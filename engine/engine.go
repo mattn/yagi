@@ -145,6 +145,13 @@ func (e *Engine) SetModel(model string) {
 	e.model = model
 }
 
+func (e *Engine) SetContextLimits(compressThreshold, maxContextChars int) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.compressThreshold = compressThreshold
+	e.maxContextChars = maxContextChars
+}
+
 func (e *Engine) Model() string {
 	e.mu.Lock()
 	defer e.mu.Unlock()

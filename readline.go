@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,13 +12,9 @@ var rl *readline.Instance
 var mux *inputMux
 
 func modelCompleter() []string {
-	var models []string
-	scanner := bufio.NewScanner(strings.NewReader(modelsTxt))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			models = append(models, line)
-		}
+	models := make([]string, len(modelList))
+	for i, m := range modelList {
+		models[i] = m.Name
 	}
 	return models
 }

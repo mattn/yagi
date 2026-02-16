@@ -1,0 +1,2965 @@
+[
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-5-haiku-20241022-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-haiku-20240307-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-opus-20240229-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/cohere.command-r-plus-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/cohere.command-r-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/deepseek.v3-v1:0",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "amazon-bedrock/eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/eu.anthropic.claude-opus-4-5-20251101-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/global.amazon.nova-2-lite-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/global.anthropic.claude-opus-4-5-20251101-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/global.anthropic.claude-sonnet-4-20250514-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/google.gemma-3-27b-it",
+    "maxContextChars": 608256
+  },
+  {
+    "name": "amazon-bedrock/google.gemma-3-4b-it",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/meta.llama3-1-70b-instruct-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/meta.llama3-1-8b-instruct-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/minimax.minimax-m2",
+    "maxContextChars": 613824
+  },
+  {
+    "name": "amazon-bedrock/mistral.ministral-3-14b-instruct",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/mistral.ministral-3-8b-instruct",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/mistral.mistral-large-2402-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/mistral.voxtral-mini-3b-2507",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/mistral.voxtral-small-24b-2507",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "amazon-bedrock/moonshot.kimi-k2-thinking",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "amazon-bedrock/nvidia.nemotron-nano-12b-v2",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/nvidia.nemotron-nano-9b-v2",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/openai.gpt-oss-120b-1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/openai.gpt-oss-20b-1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/openai.gpt-oss-safeguard-120b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/openai.gpt-oss-safeguard-20b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-235b-a22b-2507-v1:0",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-32b-v1:0",
+    "maxContextChars": 49152
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-coder-30b-a3b-v1:0",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-coder-480b-a35b-v1:0",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-next-80b-a3b",
+    "maxContextChars": 786000
+  },
+  {
+    "name": "amazon-bedrock/qwen.qwen3-vl-235b-a22b",
+    "maxContextChars": 786000
+  },
+  {
+    "name": "amazon-bedrock/us.amazon.nova-lite-v1:0",
+    "maxContextChars": 900000
+  },
+  {
+    "name": "amazon-bedrock/us.amazon.nova-micro-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/us.amazon.nova-premier-v1:0",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "amazon-bedrock/us.amazon.nova-pro-v1:0",
+    "maxContextChars": 900000
+  },
+  {
+    "name": "amazon-bedrock/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/us.anthropic.claude-opus-4-1-20250805-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/us.anthropic.claude-opus-4-20250514-v1:0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "amazon-bedrock/us.deepseek.r1-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama3-2-11b-instruct-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama3-2-1b-instruct-v1:0",
+    "maxContextChars": 393000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama3-2-3b-instruct-v1:0",
+    "maxContextChars": 393000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama3-2-90b-instruct-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama3-3-70b-instruct-v1:0",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama4-maverick-17b-instruct-v1:0",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "amazon-bedrock/us.meta.llama4-scout-17b-instruct-v1:0",
+    "maxContextChars": 10500000
+  },
+  {
+    "name": "anthropic/claude-3-5-haiku-20241022",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-5-haiku-latest",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-5-sonnet-20240620",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-5-sonnet-20241022",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-7-sonnet-20250219",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-7-sonnet-latest",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-haiku-20240307",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-opus-20240229",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-3-sonnet-20240229",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-haiku-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-haiku-4-5-20251001",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-1-20250805",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-20250514",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-opus-4-5-20251101",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-sonnet-4-0",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-sonnet-4-20250514",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-sonnet-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "anthropic/claude-sonnet-4-5-20250929",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/codex-mini-latest",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "azure-openai-responses/gpt-4-turbo",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4.1",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "azure-openai-responses/gpt-4.1-mini",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "azure-openai-responses/gpt-4.1-nano",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "azure-openai-responses/gpt-4o",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4o-2024-05-13",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4o-2024-08-06",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4o-2024-11-20",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-4o-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5-nano",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.1",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.1-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.1-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.1-codex-max",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.1-codex-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.2",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.2-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.2-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/gpt-5.2-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "azure-openai-responses/o1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o1-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o3",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o3-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o3-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o3-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o4-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "azure-openai-responses/o4-mini-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "cerebras/gpt-oss-120b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "cerebras/qwen-3-235b-a22b-instruct-2507",
+    "maxContextChars": 393000
+  },
+  {
+    "name": "cerebras/zai-glm-4.7",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "github-copilot/claude-haiku-4.5",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/claude-opus-4.5",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/claude-sonnet-4",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/claude-sonnet-4.5",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gemini-2.5-pro",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gemini-3-flash-preview",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gemini-3-pro-preview",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-4.1",
+    "maxContextChars": 192000
+  },
+  {
+    "name": "github-copilot/gpt-4o",
+    "maxContextChars": 192000
+  },
+  {
+    "name": "github-copilot/gpt-5",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.1",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.1-codex",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.1-codex-max",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.1-codex-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.2",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "github-copilot/gpt-5.2-codex",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "github-copilot/grok-code-fast-1",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "google/gemini-1.5-flash",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google/gemini-1.5-flash-8b",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google/gemini-1.5-pro",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google/gemini-2.0-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.0-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-lite-preview-06-17",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-lite-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-preview-04-17",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-preview-05-20",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-flash-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-pro-preview-05-06",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-2.5-pro-preview-06-05",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-3-flash-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-3-pro-preview",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google/gemini-flash-latest",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-flash-lite-latest",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google/gemini-live-2.5-flash",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "google/gemini-live-2.5-flash-preview-native-audio",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "google-antigravity/claude-opus-4-5-thinking",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "google-antigravity/claude-sonnet-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "google-antigravity/claude-sonnet-4-5-thinking",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "google-antigravity/gemini-3-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-antigravity/gemini-3-pro-high",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-antigravity/gemini-3-pro-low",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-antigravity/gpt-oss-120b-medium",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "google-gemini-cli/gemini-2.0-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-gemini-cli/gemini-2.5-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-gemini-cli/gemini-2.5-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-gemini-cli/gemini-3-flash-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-gemini-cli/gemini-3-pro-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-1.5-flash",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google-vertex/gemini-1.5-flash-8b",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google-vertex/gemini-1.5-pro",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "google-vertex/gemini-2.0-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-2.0-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-2.5-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-2.5-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-2.5-flash-lite-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-2.5-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-3-flash-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "google-vertex/gemini-3-pro-preview",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "groq/deepseek-r1-distill-llama-70b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/gemma2-9b-it",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "groq/llama-3.1-8b-instant",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/llama-3.3-70b-versatile",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/llama3-70b-8192",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "groq/llama3-8b-8192",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "groq/meta-llama/llama-4-maverick-17b-128e-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/mistral-saba-24b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "groq/moonshotai/kimi-k2-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/moonshotai/kimi-k2-instruct-0905",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "groq/openai/gpt-oss-120b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/openai/gpt-oss-20b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/qwen-qwq-32b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "groq/qwen/qwen3-32b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "huggingface/deepseek-ai/DeepSeek-R1-0528",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "huggingface/deepseek-ai/DeepSeek-V3.2",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "huggingface/MiniMaxAI/MiniMax-M2.1",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "huggingface/moonshotai/Kimi-K2-Instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "huggingface/moonshotai/Kimi-K2-Instruct-0905",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/moonshotai/Kimi-K2-Thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/moonshotai/Kimi-K2.5",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/Qwen/Qwen3-235B-A22B-Thinking-2507",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/Qwen/Qwen3-Coder-480B-A35B-Instruct",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/Qwen/Qwen3-Next-80B-A3B-Instruct",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/Qwen/Qwen3-Next-80B-A3B-Thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/XiaomiMiMo/MiMo-V2-Flash",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "huggingface/zai-org/GLM-4.7",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "huggingface/zai-org/GLM-4.7-Flash",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "kimi-coding/k2p5",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "kimi-coding/kimi-k2-thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "minimax/MiniMax-M2",
+    "maxContextChars": 589824
+  },
+  {
+    "name": "minimax/MiniMax-M2.1",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "minimax-cn/MiniMax-M2",
+    "maxContextChars": 589824
+  },
+  {
+    "name": "minimax-cn/MiniMax-M2.1",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "mistral/codestral-latest",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "mistral/devstral-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "mistral/devstral-medium-2507",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/devstral-medium-latest",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "mistral/devstral-small-2505",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/devstral-small-2507",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/labs-devstral-small-2512",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "mistral/magistral-medium-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/magistral-small",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/ministral-3b-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/ministral-8b-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/mistral-large-2411",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "mistral/mistral-large-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "mistral/mistral-large-latest",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "mistral/mistral-medium-2505",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "mistral/mistral-medium-2508",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "mistral/mistral-medium-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/mistral-nemo",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/mistral-small-2506",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/mistral-small-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/open-mistral-7b",
+    "maxContextChars": 24000
+  },
+  {
+    "name": "mistral/open-mixtral-8x22b",
+    "maxContextChars": 192000
+  },
+  {
+    "name": "mistral/open-mixtral-8x7b",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "mistral/pixtral-12b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "mistral/pixtral-large-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/codex-mini-latest",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/gpt-4",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "openai/gpt-4-turbo",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-4.1",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openai/gpt-4.1-mini",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openai/gpt-4.1-nano",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openai/gpt-4o",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-4o-2024-05-13",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-4o-2024-08-06",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-4o-2024-11-20",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-4o-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-5",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-5-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5-nano",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.1",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.1-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-5.1-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.1-codex-max",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.1-codex-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.2",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.2-chat-latest",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openai/gpt-5.2-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/gpt-5.2-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openai/o1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o1-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o3",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o3-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o3-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o3-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o4-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai/o4-mini-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openai-codex/gpt-5.1",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "openai-codex/gpt-5.1-codex-max",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "openai-codex/gpt-5.1-codex-mini",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "openai-codex/gpt-5.2",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "openai-codex/gpt-5.2-codex",
+    "maxContextChars": 816000
+  },
+  {
+    "name": "opencode/big-pickle",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "opencode/claude-3-5-haiku",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "opencode/claude-haiku-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "opencode/claude-opus-4-1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "opencode/claude-opus-4-5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "opencode/claude-sonnet-4",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "opencode/claude-sonnet-4-5",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "opencode/gemini-3-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "opencode/gemini-3-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "opencode/glm-4.6",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "opencode/glm-4.7",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "opencode/glm-4.7-free",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "opencode/gpt-5",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5-nano",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.1",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.1-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.1-codex-max",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.1-codex-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.2",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/gpt-5.2-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "opencode/kimi-k2",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "opencode/kimi-k2-thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "opencode/kimi-k2.5",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "opencode/kimi-k2.5-free",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "opencode/minimax-m2.1",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "opencode/minimax-m2.1-free",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "opencode/qwen3-coder",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "opencode/trinity-large-preview-free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/ai21/jamba-large-1.7",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/ai21/jamba-mini-1.7",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/alibaba/tongyi-deepresearch-30b-a3b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/allenai/olmo-3.1-32b-instruct",
+    "maxContextChars": 196608
+  },
+  {
+    "name": "openrouter/amazon/nova-2-lite-v1",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/amazon/nova-lite-v1",
+    "maxContextChars": 900000
+  },
+  {
+    "name": "openrouter/amazon/nova-micro-v1",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/amazon/nova-premier-v1",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/amazon/nova-pro-v1",
+    "maxContextChars": 900000
+  },
+  {
+    "name": "openrouter/anthropic/claude-3-haiku",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-3.5-haiku",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-3.5-sonnet",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-3.7-sonnet",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-3.7-sonnet:thinking",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-haiku-4.5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-opus-4",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-opus-4.1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-opus-4.5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/anthropic/claude-sonnet-4",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/anthropic/claude-sonnet-4.5",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/arcee-ai/trinity-large-preview:free",
+    "maxContextChars": 393000
+  },
+  {
+    "name": "openrouter/arcee-ai/trinity-mini",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/arcee-ai/trinity-mini:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/arcee-ai/virtuoso-large",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/baidu/ernie-4.5-21b-a3b",
+    "maxContextChars": 360000
+  },
+  {
+    "name": "openrouter/baidu/ernie-4.5-vl-28b-a3b",
+    "maxContextChars": 90000
+  },
+  {
+    "name": "openrouter/bytedance-seed/seed-1.6",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/bytedance-seed/seed-1.6-flash",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/cohere/command-r-08-2024",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/cohere/command-r-plus-08-2024",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/deepcogito/cogito-v2-preview-llama-109b-moe",
+    "maxContextChars": 98301
+  },
+  {
+    "name": "openrouter/deepcogito/cogito-v2-preview-llama-405b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/deepcogito/cogito-v2-preview-llama-70b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-chat",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-chat-v3-0324",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-chat-v3.1",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-r1",
+    "maxContextChars": 192000
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-r1-0528",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-r1-distill-llama-70b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-v3.1-terminus",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-v3.1-terminus:exacto",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-v3.2",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/deepseek/deepseek-v3.2-exp",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/google/gemini-2.0-flash-001",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.0-flash-lite-001",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-flash",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-flash-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-pro-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-2.5-pro-preview-05-06",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-3-flash-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemini-3-pro-preview",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/google/gemma-3-27b-it",
+    "maxContextChars": 288000
+  },
+  {
+    "name": "openrouter/google/gemma-3-27b-it:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/inception/mercury",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/inception/mercury-coder",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/kwaipilot/kat-coder-pro",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3-8b-instruct",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3.1-405b-instruct",
+    "maxContextChars": 30000
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3.1-70b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3.1-8b-instruct",
+    "maxContextChars": 49152
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3.3-70b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/meta-llama/llama-3.3-70b-instruct:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/meta-llama/llama-4-maverick",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "openrouter/meta-llama/llama-4-scout",
+    "maxContextChars": 983040
+  },
+  {
+    "name": "openrouter/minimax/minimax-m1",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/minimax/minimax-m2",
+    "maxContextChars": 589824
+  },
+  {
+    "name": "openrouter/minimax/minimax-m2.1",
+    "maxContextChars": 589824
+  },
+  {
+    "name": "openrouter/mistralai/codestral-2508",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/mistralai/devstral-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/mistralai/devstral-medium",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/devstral-small",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/ministral-14b-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/mistralai/ministral-3b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/ministral-3b-2512",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/ministral-8b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/ministral-8b-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/mistralai/mistral-large",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/mistralai/mistral-large-2407",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-large-2411",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-large-2512",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/mistralai/mistral-medium-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-medium-3.1",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-nemo",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-saba",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/mistral-small-24b-instruct-2501",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/mistral-small-3.1-24b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-small-3.1-24b-instruct:free",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/mistralai/mistral-small-3.2-24b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/mistral-small-creative",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/mistral-tiny",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/mixtral-8x22b-instruct",
+    "maxContextChars": 196608
+  },
+  {
+    "name": "openrouter/mistralai/mixtral-8x7b-instruct",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/pixtral-12b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/mistralai/pixtral-large-2411",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/mistralai/voxtral-small-24b-2507",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "openrouter/moonshotai/kimi-k2",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/moonshotai/kimi-k2-0905",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/moonshotai/kimi-k2-0905:exacto",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/moonshotai/kimi-k2-thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/moonshotai/kimi-k2.5",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/nex-agi/deepseek-v3.1-nex-n1",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/nousresearch/deephermes-3-mistral-24b-preview",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/nousresearch/hermes-4-70b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/nvidia/llama-3.1-nemotron-70b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/nvidia/nemotron-3-nano-30b-a3b",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/nvidia/nemotron-nano-9b-v2",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/nvidia/nemotron-nano-9b-v2:free",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-3.5-turbo",
+    "maxContextChars": 49155
+  },
+  {
+    "name": "openrouter/openai/gpt-3.5-turbo-0613",
+    "maxContextChars": 12285
+  },
+  {
+    "name": "openrouter/openai/gpt-3.5-turbo-16k",
+    "maxContextChars": 49155
+  },
+  {
+    "name": "openrouter/openai/gpt-4",
+    "maxContextChars": 24573
+  },
+  {
+    "name": "openrouter/openai/gpt-4-0314",
+    "maxContextChars": 24573
+  },
+  {
+    "name": "openrouter/openai/gpt-4-1106-preview",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4-turbo",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4-turbo-preview",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4.1",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openrouter/openai/gpt-4.1-mini",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openrouter/openai/gpt-4.1-nano",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "openrouter/openai/gpt-4o",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-2024-05-13",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-2024-08-06",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-2024-11-20",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-audio-preview",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o-mini-2024-07-18",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-4o:extended",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-5",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-image",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-image-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-nano",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.1",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.1-chat",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.1-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.1-codex-max",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.1-codex-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.2",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.2-chat",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.2-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-5.2-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-120b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-120b:exacto",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-120b:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-20b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-20b:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/gpt-oss-safeguard-20b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/openai/o1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o3",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o3-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o3-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o3-mini-high",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o3-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o4-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o4-mini-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openai/o4-mini-high",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "openrouter/openrouter/auto",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "openrouter/prime-intellect/intellect-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/qwen/qwen-2.5-72b-instruct",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/qwen/qwen-2.5-7b-instruct",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/qwen/qwen-max",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/qwen/qwen-plus",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/qwen/qwen-plus-2025-07-28",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/qwen/qwen-plus-2025-07-28:thinking",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/qwen/qwen-turbo",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "openrouter/qwen/qwen-vl-max",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/qwen/qwen3-14b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "openrouter/qwen/qwen3-235b-a22b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "openrouter/qwen/qwen3-235b-a22b-2507",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-235b-a22b-thinking-2507",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-30b-a3b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "openrouter/qwen/qwen3-30b-a3b-instruct-2507",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-30b-a3b-thinking-2507",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/qwen/qwen3-32b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "openrouter/qwen/qwen3-4b:free",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "openrouter/qwen/qwen3-8b",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder-30b-a3b-instruct",
+    "maxContextChars": 480000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder-flash",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder-plus",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder:exacto",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-coder:free",
+    "maxContextChars": 786000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-max",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-next-80b-a3b-instruct",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-next-80b-a3b-thinking",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-235b-a22b-instruct",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-235b-a22b-thinking",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-30b-a3b-instruct",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-30b-a3b-thinking",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-8b-instruct",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/qwen/qwen3-vl-8b-thinking",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/qwen/qwq-32b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/relace/relace-search",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/sao10k/l3-euryale-70b",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "openrouter/sao10k/l3.1-euryale-70b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/stepfun-ai/step3",
+    "maxContextChars": 196608
+  },
+  {
+    "name": "openrouter/thedrummer/rocinante-12b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/thedrummer/unslopnemo-12b",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "openrouter/tngtech/deepseek-r1t2-chimera",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/tngtech/tng-r1t-chimera",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/tngtech/tng-r1t-chimera:free",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "openrouter/upstage/solar-pro-3:free",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/x-ai/grok-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/x-ai/grok-3-beta",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/x-ai/grok-3-mini",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/x-ai/grok-3-mini-beta",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/x-ai/grok-4",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/x-ai/grok-4-fast",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "openrouter/x-ai/grok-4.1-fast",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "openrouter/x-ai/grok-code-fast-1",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "openrouter/xiaomi/mimo-v2-flash",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "openrouter/z-ai/glm-4-32b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.5",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.5-air",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.5-air:free",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.5v",
+    "maxContextChars": 196608
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.6",
+    "maxContextChars": 608256
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.6:exacto",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.6v",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.7",
+    "maxContextChars": 608256
+  },
+  {
+    "name": "openrouter/z-ai/glm-4.7-flash",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen-3-14b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen-3-235b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen-3-30b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen-3-32b",
+    "maxContextChars": 122880
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-235b-a22b-thinking",
+    "maxContextChars": 786342
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-coder",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-coder-30b-a3b",
+    "maxContextChars": 480000
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-coder-plus",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-max",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-max-preview",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "vercel-ai-gateway/alibaba/qwen3-max-thinking",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-3-haiku",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-3.5-haiku",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-3.5-sonnet",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-3.5-sonnet-20240620",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-3.7-sonnet",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-haiku-4.5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-opus-4",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-opus-4.1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-opus-4.5",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-sonnet-4",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/anthropic/claude-sonnet-4.5",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/arcee-ai/trinity-large-preview",
+    "maxContextChars": 393000
+  },
+  {
+    "name": "vercel-ai-gateway/bytedance/seed-1.6",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/cohere/command-a",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/deepseek/deepseek-v3",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "vercel-ai-gateway/deepseek/deepseek-v3.1",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "vercel-ai-gateway/deepseek/deepseek-v3.1-terminus",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/deepseek/deepseek-v3.2-exp",
+    "maxContextChars": 491520
+  },
+  {
+    "name": "vercel-ai-gateway/deepseek/deepseek-v3.2-thinking",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-2.5-flash",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-2.5-flash-lite",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-2.5-flash-lite-preview-09-2025",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-2.5-flash-preview-09-2025",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-2.5-pro",
+    "maxContextChars": 3145728
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-3-flash",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/google/gemini-3-pro-preview",
+    "maxContextChars": 3000000
+  },
+  {
+    "name": "vercel-ai-gateway/inception/mercury-coder-small",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "vercel-ai-gateway/meituan/longcat-flash-chat",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/meituan/longcat-flash-thinking",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-3.1-70b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-3.1-8b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-3.2-11b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-3.2-90b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-3.3-70b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-4-maverick",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/meta/llama-4-scout",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/minimax/minimax-m2",
+    "maxContextChars": 786342
+  },
+  {
+    "name": "vercel-ai-gateway/minimax/minimax-m2.1",
+    "maxContextChars": 589824
+  },
+  {
+    "name": "vercel-ai-gateway/minimax/minimax-m2.1-lightning",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/codestral",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/devstral-2",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/devstral-small",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/devstral-small-2",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/ministral-3b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/ministral-8b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/mistral-medium",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/mistral-small",
+    "maxContextChars": 96000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/pixtral-12b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/mistral/pixtral-large",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/moonshotai/kimi-k2",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/moonshotai/kimi-k2-thinking",
+    "maxContextChars": 648432
+  },
+  {
+    "name": "vercel-ai-gateway/moonshotai/kimi-k2-thinking-turbo",
+    "maxContextChars": 786342
+  },
+  {
+    "name": "vercel-ai-gateway/moonshotai/kimi-k2-turbo",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/moonshotai/kimi-k2.5",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/nvidia/nemotron-nano-12b-v2-vl",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/nvidia/nemotron-nano-9b-v2",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/openai/codex-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4-turbo",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4.1",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4.1-mini",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4.1-nano",
+    "maxContextChars": 3142728
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4o",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-4o-mini",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5-chat",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5-nano",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.1-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.1-codex-max",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.1-codex-mini",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.1-instant",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.1-thinking",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.2",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.2-chat",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.2-codex",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-5.2-pro",
+    "maxContextChars": 1200000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-oss-120b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-oss-20b",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/gpt-oss-safeguard-20b",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o1",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o3",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o3-deep-research",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o3-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o3-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/openai/o4-mini",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/perplexity/sonar",
+    "maxContextChars": 381000
+  },
+  {
+    "name": "vercel-ai-gateway/perplexity/sonar-pro",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/prime-intellect/intellect-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/vercel/v0-1.0-md",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/vercel/v0-1.5-md",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-2-vision",
+    "maxContextChars": 98304
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-3-fast",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-3-mini",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-3-mini-fast",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-4",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-4-fast-non-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-4-fast-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-4.1-fast-non-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-4.1-fast-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "vercel-ai-gateway/xai/grok-code-fast-1",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "vercel-ai-gateway/xiaomi/mimo-v2-flash",
+    "maxContextChars": 786432
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.5",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.5-air",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.5v",
+    "maxContextChars": 196608
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.6",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.6v",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.6v-flash",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.7",
+    "maxContextChars": 608256
+  },
+  {
+    "name": "vercel-ai-gateway/zai/glm-4.7-flashx",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "xai/grok-2",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-2-1212",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-2-latest",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-2-vision",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "xai/grok-2-vision-1212",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "xai/grok-2-vision-latest",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "xai/grok-3",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-fast",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-fast-latest",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-latest",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-mini",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-mini-fast",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-mini-fast-latest",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-3-mini-latest",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-4",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "xai/grok-4-1-fast",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "xai/grok-4-1-fast-non-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "xai/grok-4-fast",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "xai/grok-4-fast-non-reasoning",
+    "maxContextChars": 6000000
+  },
+  {
+    "name": "xai/grok-beta",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "xai/grok-code-fast-1",
+    "maxContextChars": 768000
+  },
+  {
+    "name": "xai/grok-vision-beta",
+    "maxContextChars": 24576
+  },
+  {
+    "name": "zai/glm-4.5",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "zai/glm-4.5-air",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "zai/glm-4.5-flash",
+    "maxContextChars": 393216
+  },
+  {
+    "name": "zai/glm-4.5v",
+    "maxContextChars": 192000
+  },
+  {
+    "name": "zai/glm-4.6",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "zai/glm-4.6v",
+    "maxContextChars": 384000
+  },
+  {
+    "name": "zai/glm-4.7",
+    "maxContextChars": 614400
+  },
+  {
+    "name": "zai/glm-4.7-flash",
+    "maxContextChars": 600000
+  },
+  {
+    "name": "qwen/qwen3-max"
+  },
+  {
+    "name": "qwen/qwen-vl-max-2025-04-08"
+  },
+  {
+    "name": "qwen/qwen3-vl-235b-a22b-thinking"
+  },
+  {
+    "name": "qwen/qwen2.5-vl-72b-instruct"
+  },
+  {
+    "name": "qwen/qwen-vl-plus-2025-05-07"
+  },
+  {
+    "name": "qwen/qwen2.5-7b-instruct-1m"
+  },
+  {
+    "name": "qwen/qwen-plus-2025-07-28"
+  },
+  {
+    "name": "qwen/qwen2.5-vl-3b-instruct"
+  },
+  {
+    "name": "qwen/qwen-vl-plus-latest"
+  },
+  {
+    "name": "qwen/qwen-max"
+  },
+  {
+    "name": "qwen/qwen2.5-14b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-vl-30b-a3b-thinking"
+  },
+  {
+    "name": "qwen/qwen3-235b-a22b-thinking-2507"
+  },
+  {
+    "name": "qwen/qwen2.5-vl-7b-instruct"
+  },
+  {
+    "name": "qwen/qwen2.5-7b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-32b"
+  },
+  {
+    "name": "qwen/qwen-vl-max-2025-08-13"
+  },
+  {
+    "name": "qwen/qwen3-vl-plus-2025-09-23"
+  },
+  {
+    "name": "qwen/qwen-vl-plus"
+  },
+  {
+    "name": "qwen/qwen3-30b-a3b-thinking-2507"
+  },
+  {
+    "name": "qwen/qwen-max-2025-01-25"
+  },
+  {
+    "name": "qwen/qwen2.5-72b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-coder-plus-2025-09-23"
+  },
+  {
+    "name": "qwen/qwen-plus-latest"
+  },
+  {
+    "name": "qwen/qwen3-max-2026-01-23"
+  },
+  {
+    "name": "qwen/qwen3-coder-480b-a35b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-coder-plus"
+  },
+  {
+    "name": "qwen/qwen3-vl-8b-thinking"
+  },
+  {
+    "name": "qwen/qwen-plus-2025-09-11"
+  },
+  {
+    "name": "qwen/qwen3-vl-flash-2026-01-22"
+  },
+  {
+    "name": "qwen/qwen3-vl-flash-2025-10-15"
+  },
+  {
+    "name": "qwen/qwen3-max-preview"
+  },
+  {
+    "name": "qwen/qwen-vl-max"
+  },
+  {
+    "name": "qwen/qwen3-vl-30b-a3b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-8b"
+  },
+  {
+    "name": "qwen/qwen2.5-14b-instruct-1m"
+  },
+  {
+    "name": "qwen/qwen3-vl-235b-a22b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-coder-30b-a3b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-4b"
+  },
+  {
+    "name": "qwen/qwen3-235b-a22b"
+  },
+  {
+    "name": "qwen/qwen-plus"
+  },
+  {
+    "name": "qwen/qwen-turbo"
+  },
+  {
+    "name": "qwen/qwen3-0.6b"
+  },
+  {
+    "name": "qwen/qwen3-1.7b"
+  },
+  {
+    "name": "qwen/qwen-vl-plus-2025-01-25"
+  },
+  {
+    "name": "qwen/qwen3-coder-flash"
+  },
+  {
+    "name": "qwen/qvq-max"
+  },
+  {
+    "name": "qwen/qwen-vl-plus-2025-08-15"
+  },
+  {
+    "name": "qwen/qwen3-vl-plus"
+  },
+  {
+    "name": "qwen/qwen3-next-80b-a3b-thinking"
+  },
+  {
+    "name": "qwen/qwen-vl-max-latest"
+  },
+  {
+    "name": "qwen/qwen-turbo-2025-04-28"
+  },
+  {
+    "name": "qwen/qwen2.5-vl-32b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-30b-a3b"
+  },
+  {
+    "name": "qwen/qwen3-vl-flash"
+  },
+  {
+    "name": "qwen/qwen-turbo-latest"
+  },
+  {
+    "name": "qwen/qwen2.5-32b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-14b"
+  },
+  {
+    "name": "qwen/qwen3-vl-8b-instruct"
+  },
+  {
+    "name": "qwen/qwen3-max-2025-09-23"
+  },
+  {
+    "name": "qwen/qwen-plus-character"
+  },
+  {
+    "name": "qwen/qwen3-coder-flash-2025-07-28"
+  },
+  {
+    "name": "qwen/qwen-flash-character"
+  },
+  {
+    "name": "qwen/qwen3-vl-plus-2025-12-19"
+  },
+  {
+    "name": "qwen/qwen-plus-2025-04-28"
+  },
+  {
+    "name": "qwen/qwen3-30b-a3b-instruct-2507"
+  },
+  {
+    "name": "qwen/qwen-flash"
+  },
+  {
+    "name": "qwen/qwen-flash-2025-07-28"
+  },
+  {
+    "name": "qwen/qwen-plus-2025-07-14"
+  },
+  {
+    "name": "qwen/qwen3-235b-a22b-instruct-2507"
+  },
+  {
+    "name": "qwen/qwq-plus"
+  },
+  {
+    "name": "qwen/qwen3-coder-plus-2025-07-22"
+  },
+  {
+    "name": "qwen/qwen3-next-80b-a3b-instruct"
+  },
+  {
+    "name": "github/gpt-5",
+    "maxContextChars": 10000
+  }
+]

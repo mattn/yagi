@@ -106,6 +106,11 @@ var DefaultProviders = []Provider{
 		EnvKey: "COPILOT_TOKEN",
 	},
 	{
+		Name:   "github",
+		APIURL: "https://models.inference.ai.azure.com",
+		EnvKey: "GITHUB_TOKEN",
+	},
+	{
 		Name:   "google-antigravity",
 		APIURL: "https://antigravity.googleapis.com/v1beta/openai",
 		EnvKey: "GEMINI_API_KEY",

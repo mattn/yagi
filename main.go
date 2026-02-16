@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -23,8 +22,30 @@ import (
 	"github.com/yagi-agent/yagi/engine"
 )
 
-//go:embed models.txt
-var modelsTxt string
+//go:embed models.json
+var modelsJSON []byte
+
+type ModelInfo struct {
+	Name           string `json:"name"`
+	MaxContextChars int    `json:"maxContextChars,omitempty"`
+}
+
+var modelList []ModelInfo
+
+func init() {
+	if err := json.Unmarshal(modelsJSON, &modelList); err != nil {
+		panic("failed to parse models.json: " + err.Error())
+	}
+}
+
+func findModelInfo(name string) *ModelInfo {
+	for i := range modelList {
+		if modelList[i].Name == name {
+			return &modelList[i]
+		}
+	}
+	return nil
+}
 
 var (
 	selectedProvider *Provider
@@ -245,6 +266,11 @@ func setupProvider(modelFlag, apiKeyFlag string) *openai.Client {
 	client := openai.NewClientWithConfig(config)
 	eng.SetClient(client)
 	eng.SetModel(model)
+
+	if mi := findModelInfo(modelFlag); mi != nil && mi.MaxContextChars > 0 {
+		eng.SetContextLimits(mi.MaxContextChars*8/10, mi.MaxContextChars)
+	}
+
 	return client
 }
 
@@ -539,6 +565,9 @@ func handleSlashCommand(input string, client **openai.Client, configDir string, 
 		*client = newClient
 		eng.SetClient(newClient)
 		eng.SetModel(model)
+		if mi := findModelInfo(providerName + "/" + modelName); mi != nil && mi.MaxContextChars > 0 {
+			eng.SetContextLimits(mi.MaxContextChars*8/10, mi.MaxContextChars)
+		}
 		fmt.Printf("Model changed to: %s/%s\n", selectedProvider.Name, model)
 	case "/clear":
 		*messages = nil
@@ -815,11 +844,9 @@ func listModels(args []string) {
 		filter = args[0]
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(modelsTxt))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if filter == "" || strings.Contains(line, filter) {
-			fmt.Println(line)
+	for _, m := range modelList {
+		if filter == "" || strings.Contains(m.Name, filter) {
+			fmt.Println(m.Name)
 		}
 	}
 }
