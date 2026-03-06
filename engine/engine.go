@@ -40,6 +40,8 @@ type Config struct {
 type ChatOptions struct {
 	Skill        string
 	Autonomous   bool
+	NoThinking   bool
+	MaxIter      int
 	OnContent    func(text string)
 	OnReasoning  func(text string)
 	OnToolCall   func(name, arguments string)
@@ -350,14 +352,16 @@ func (e *Engine) chat(ctx context.Context, messages []openai.ChatCompletionMessa
 		currentModel := e.model
 		e.mu.Unlock()
 
-		stream, err := e.client.CreateChatCompletionStream(
-			ctx,
-			openai.ChatCompletionRequest{
-				Model:    currentModel,
-				Messages: messages,
-				Tools:    e.tools,
-			},
-		)
+		req := openai.ChatCompletionRequest{
+			Model:    currentModel,
+			Messages: messages,
+			Tools:    e.tools,
+		}
+		if opts.NoThinking {
+			req.ReasoningEffort = "low"
+		}
+
+		stream, err := e.client.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			lastErr = err
 			continue
@@ -380,10 +384,14 @@ func (e *Engine) chat(ctx context.Context, messages []openai.ChatCompletionMessa
 // produces a final text response or the iteration limit is reached.
 func (e *Engine) Chat(ctx context.Context, messages []openai.ChatCompletionMessage, opts ChatOptions) (string, []openai.ChatCompletionMessage, error) {
 	iteration := 0
+	maxIter := e.maxAutonomousIter
+	if opts.MaxIter > 0 {
+		maxIter = opts.MaxIter
+	}
 
 	for {
 		iteration++
-		if opts.Autonomous && iteration > e.maxAutonomousIter {
+		if opts.Autonomous && iteration > maxIter {
 			break
 		}
 

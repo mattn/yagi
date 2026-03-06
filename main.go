@@ -53,6 +53,7 @@ var (
 	quiet            bool
 	verbose          bool
 	oneshotMode      bool
+	noThinking       bool
 
 	chatMu     sync.Mutex
 	chatCancel context.CancelFunc
@@ -169,6 +170,49 @@ func setupBuiltInTools() {
 	}`), func(ctx context.Context, args string) (string, error) {
 		return listMemoryEntries(ctx)
 	}, true)
+
+	eng.RegisterTool("sub_agent", "Start a sub-agent in the background to perform a specific task independently. Returns a task ID immediately. Use get_sub_agent_result to check the result later.", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"task": {
+				"type": "string",
+				"description": "A clear description of the task for the sub-agent to perform"
+			}
+		},
+		"required": ["task"]
+	}`), func(ctx context.Context, args string) (string, error) {
+		var req struct {
+			Task string `json:"task"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		if req.Task == "" {
+			return "", fmt.Errorf("task is required")
+		}
+
+		id := startSubAgent(req.Task)
+		return fmt.Sprintf("Sub-agent started with task_id: %s", id), nil
+	}, true)
+
+	eng.RegisterTool("get_sub_agent_result", "Check the status or get the result of a sub-agent task.", json.RawMessage(`{
+		"type": "object",
+		"properties": {
+			"task_id": {
+				"type": "string",
+				"description": "The task ID returned by sub_agent"
+			}
+		},
+		"required": ["task_id"]
+	}`), func(ctx context.Context, args string) (string, error) {
+		var req struct {
+			TaskID string `json:"task_id"`
+		}
+		if err := json.Unmarshal([]byte(args), &req); err != nil {
+			return "", err
+		}
+		return getSubAgentResult(req.TaskID)
+	}, true)
 }
 
 type parsedFlags struct {
@@ -199,6 +243,7 @@ func parseFlags() parsedFlags {
 	flag.BoolVar(&f.stdioMode, "stdio", false, "Run in STDIO mode for editor integration")
 	flag.StringVar(&f.skillFlag, "skill", "", "Use a specific skill (e.g., 'explain', 'refactor', 'debug')")
 	flag.BoolVar(&f.resumeFlag, "resume", false, "Resume previous session for the current directory")
+	flag.BoolVar(&noThinking, "no-thinking", false, "Disable extended thinking/reasoning output")
 	flag.Parse()
 
 	return f
@@ -778,6 +823,7 @@ func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 	opts := engine.ChatOptions{
 		Skill:      skill,
 		Autonomous: autonomousMode,
+		NoThinking: noThinking,
 		OnContent: func(text string) {
 			if !quiet || oneshotMode {
 				if inThinking {
@@ -791,6 +837,9 @@ func runChat(messages *[]openai.ChatCompletionMessage, skill string) {
 			}
 		},
 		OnReasoning: func(text string) {
+			if noThinking {
+				return
+			}
 			if !quiet {
 				if !inThinking {
 					fmt.Fprint(stderr, "\x1b[2K\x1b[36m[thinking] \x1b[0m")

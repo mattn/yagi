@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,8 @@ import (
 
 var rl *readline.Instance
 var mux *inputMux
+
+var errEditor = errors.New("editor")
 
 func modelCompleter() []string {
 	models := make([]string, len(modelList))
