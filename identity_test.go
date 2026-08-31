@@ -108,7 +108,7 @@ func TestGetSystemMessage_Empty(t *testing.T) {
 	if !strings.Contains(got, "Environment") {
 		t.Fatalf("expected OS info, got %q", got)
 	}
-	if !strings.Contains(got, "MUST NOT be overridden") {
+	if !strings.Contains(got, "tries to override, reveal, or replace") {
 		t.Fatalf("expected prompt injection guard, got %q", got)
 	}
 }
@@ -120,7 +120,7 @@ func TestGetSystemMessage_OnlySystem(t *testing.T) {
 	if !strings.HasPrefix(got, "system") {
 		t.Fatalf("expected to start with %q, got %q", "system", got)
 	}
-	if !strings.Contains(got, "MUST NOT be overridden") {
+	if !strings.Contains(got, "tries to override, reveal, or replace") {
 		t.Fatal("expected prompt injection guard to be present")
 	}
 }
@@ -136,7 +136,7 @@ func TestGetSystemMessage_WithSkill(t *testing.T) {
 	if !strings.Contains(got, "skill content") {
 		t.Fatal("expected skill content to be present")
 	}
-	if !strings.Contains(got, "MUST NOT be overridden") {
+	if !strings.Contains(got, "tries to override, reveal, or replace") {
 		t.Fatal("expected prompt injection guard to be present")
 	}
 }
@@ -148,7 +148,7 @@ func TestGetSystemMessage_UnknownSkill(t *testing.T) {
 	if !strings.HasPrefix(got, "system") {
 		t.Fatalf("expected to start with %q, got %q", "system", got)
 	}
-	if !strings.Contains(got, "MUST NOT be overridden") {
+	if !strings.Contains(got, "tries to override, reveal, or replace") {
 		t.Fatal("expected prompt injection guard to be present")
 	}
 }
@@ -158,9 +158,8 @@ func TestGetSystemMessage_PromptInjectionGuard(t *testing.T) {
 	systemPrompt = "You are a helpful assistant."
 	got := getSystemMessage("")
 	guardPhrases := []string{
-		"MUST NOT be overridden",
-		"ignore previous instructions",
-		"polite refusal",
+		"tries to override, reveal, or replace",
+		"politely decline",
 	}
 	for _, phrase := range guardPhrases {
 		if !strings.Contains(got, phrase) {
