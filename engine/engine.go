@@ -129,6 +129,30 @@ func (e *Engine) RegisterTool(name, description string, parameters json.RawMessa
 	e.toolMeta[name] = toolMetadata{safe: safe}
 }
 
+// KeepTools trims the registered tools to the named ones. A sub-1B
+// model pays prompt tokens for every definition and picks wrong from a
+// crowded roster, so small mode keeps only the tools it can drive.
+// Call it after registration and before anything renders the roster.
+func (e *Engine) KeepTools(names ...string) {
+	keep := make(map[string]bool, len(names))
+	for _, n := range names {
+		keep[n] = true
+	}
+	kept := e.tools[:0]
+	for _, t := range e.tools {
+		if t.Function == nil {
+			continue
+		}
+		if keep[t.Function.Name] {
+			kept = append(kept, t)
+			continue
+		}
+		delete(e.toolFuncs, t.Function.Name)
+		delete(e.toolMeta, t.Function.Name)
+	}
+	e.tools = kept
+}
+
 func (e *Engine) Client() *openai.Client {
 	e.mu.Lock()
 	defer e.mu.Unlock()

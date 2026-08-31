@@ -61,6 +61,7 @@ var (
 
 	autonomousMode bool
 	planningMode   bool
+	smallMode      bool
 
 	eng *engine.Engine
 )
@@ -244,7 +245,11 @@ func parseFlags() parsedFlags {
 	flag.StringVar(&f.skillFlag, "skill", "", "Use a specific skill (e.g., 'explain', 'refactor', 'debug')")
 	flag.BoolVar(&f.resumeFlag, "resume", false, "Resume previous session for the current directory")
 	flag.BoolVar(&noThinking, "no-thinking", false, "Disable extended thinking/reasoning output")
+	flag.BoolVar(&smallMode, "small", false, "Profile for sub-1B local models: fewer tools, IDENTITY_SMALL.md if present, thinking off")
 	flag.Parse()
+	if smallMode {
+		noThinking = true
+	}
 
 	return f
 }
@@ -273,6 +278,17 @@ func loadConfigurations() string {
 	}
 	if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
+	}
+	if smallMode {
+		// A small model pays prompt tokens for every definition and, on
+		// the evidence, cannot drive the sub-agent choreography at all;
+		// keep the direct hands and the memory. MCP servers load after
+		// this and stay whatever the user configured.
+		eng.KeepTools(
+			"read_file", "list_files", "write_file", "run_command",
+			"search_files", "glob", "question", "web_search",
+			"saveMemoryEntry", "getMemoryEntry", "deleteMemoryEntry", "listMemoryEntries",
+		)
 	}
 	if err := loadMCPConfig(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)

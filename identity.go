@@ -25,6 +25,13 @@ func loadIdentity(configDir string) error {
 		}
 	} else {
 		path = filepath.Join(configDir, "IDENTITY.md")
+		// Small mode prefers the compact identity when the user keeps
+		// one; the ordinary file stays the fallback.
+		if smallMode {
+			if p := filepath.Join(configDir, "IDENTITY_SMALL.md"); fileExists(p) {
+				path = p
+			}
+		}
 	}
 
 	data, err := os.ReadFile(path)
@@ -36,6 +43,11 @@ func loadIdentity(configDir string) error {
 	}
 	systemPrompt = string(data)
 	return nil
+}
+
+func fileExists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
 }
 
 func loadSkills(configDir string) error {
