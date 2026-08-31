@@ -279,19 +279,19 @@ func loadConfigurations() string {
 	if err := loadPlugins(filepath.Join(configDir, "tools"), configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load plugins: %v\n", err)
 	}
+	if err := loadMCPConfig(configDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
+	}
 	if smallMode {
-		// A small model pays prompt tokens for every definition and, on
-		// the evidence, cannot drive the sub-agent choreography at all;
-		// keep the direct hands and the memory. MCP servers load after
-		// this and stay whatever the user configured.
+		// A small model pays prompt tokens for every definition — an MCP
+		// server's fat schemas included — and, on the evidence, cannot
+		// drive the sub-agent choreography at all. Keep the direct hands
+		// and the memory; everything else waits for a bigger model.
 		eng.KeepTools(
 			"read_file", "list_files", "write_file", "run_command",
 			"search_files", "glob", "question", "web_search",
 			"saveMemoryEntry", "getMemoryEntry", "deleteMemoryEntry", "listMemoryEntries",
 		)
-	}
-	if err := loadMCPConfig(configDir); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: failed to load MCP config: %v\n", err)
 	}
 	if err := loadExtraProviders(configDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to load extra providers: %v\n", err)
