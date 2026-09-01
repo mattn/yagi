@@ -68,7 +68,7 @@ var (
 
 const name = "yagi"
 
-const version = "0.0.46"
+const version = "0.0.47"
 
 var revision = "HEAD"
 
