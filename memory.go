@@ -34,6 +34,12 @@ func saveMemory() error {
 	if err != nil {
 		return err
 	}
+	// The config directory is ours to create: on macOS nothing else
+	// makes ~/Library/Application Support/yagi, so the first save would
+	// otherwise fail on a fresh machine.
+	if err := os.MkdirAll(filepath.Dir(memoryPath), 0700); err != nil {
+		return err
+	}
 	return os.WriteFile(memoryPath, data, 0600)
 }
 
