@@ -105,3 +105,25 @@ func TestMemoryConcurrency(t *testing.T) {
 		t.Errorf("memory.json not created: %v", err)
 	}
 }
+
+func TestMemorySavesIntoAMissingDirectory(t *testing.T) {
+	// A fresh machine has no config directory yet, which is where the
+	// first saveMemoryEntry used to fail.
+	dir := filepath.Join(t.TempDir(), "yagi")
+	memoryPath = filepath.Join(dir, "memory.json")
+	memoryData = map[string]string{}
+
+	if err := setMemory("name", "yagi"); err != nil {
+		t.Fatalf("setMemory into a missing directory: %v", err)
+	}
+	if _, err := os.Stat(memoryPath); err != nil {
+		t.Fatalf("memory.json not written: %v", err)
+	}
+	memoryData = map[string]string{}
+	if err := loadMemory(dir); err != nil {
+		t.Fatalf("loadMemory: %v", err)
+	}
+	if got := getMemory("name"); got != "yagi" {
+		t.Errorf("getMemory = %q, want %q", got, "yagi")
+	}
+}
